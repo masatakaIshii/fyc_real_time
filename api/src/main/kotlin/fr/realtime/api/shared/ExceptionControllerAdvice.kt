@@ -1,5 +1,6 @@
 package fr.realtime.api.shared
 
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.validation.FieldError
 import org.springframework.validation.ObjectError
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
 class ExceptionControllerAdvice {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException::class)
@@ -20,6 +22,9 @@ class ExceptionControllerAdvice {
             val errorMessage = error.getDefaultMessage()
             errors[fieldName] = errorMessage
         }
+
+        logger.error("Validation errors => $errors")
+
         return errors
     }
 

@@ -18,8 +18,8 @@ class ThemeController(val saveTheme: SaveTheme) {
 
     @PostMapping
     fun createTheme(@Valid @RequestBody request: CreateThemeRequest) {
-        logger.info("POST /api/theme : create theme with name '${request.name}'")
+        logger.info("Create theme with name '${request.name}' in meeting with id '${request.meetingId}'")
 
-        saveTheme.execute(Theme(request.name, request.username))
+        saveTheme.execute(Theme(request.name, request.username, request.meetingId.toLong()))
     }
 }

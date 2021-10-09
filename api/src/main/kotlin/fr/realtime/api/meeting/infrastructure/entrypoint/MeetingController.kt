@@ -1,4 +1,4 @@
-package fr.realtime.api.meeting.infrastructure
+package fr.realtime.api.meeting.infrastructure.entrypoint
 
 import fr.realtime.api.meeting.usecase.SaveMeeting
 import org.slf4j.LoggerFactory

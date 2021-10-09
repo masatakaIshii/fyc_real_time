@@ -1,6 +1,7 @@
-package fr.realtime.api.meeting.infrastructure
+package fr.realtime.api.integration.meeting.infrastructure
 
 import com.google.gson.Gson
+import fr.realtime.api.meeting.infrastructure.entrypoint.CreateMeetingRequest
 import fr.realtime.api.meeting.usecase.SaveMeeting
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested

@@ -1,10 +1,34 @@
 package fr.realtime.api.meeting.usecase
 
+import fr.realtime.api.meeting.core.Meeting
+import fr.realtime.api.meeting.core.MeetingDao
+import fr.realtime.api.user.core.UserDao
+import fr.realtime.api.shared.core.exceptions.NotFoundException
+import fr.realtime.api.shared.core.utils.DateHelper
+import fr.realtime.api.shared.core.utils.UUIDHelper
 import org.springframework.stereotype.Service
 
 @Service
-class SaveMeeting {
+class SaveMeeting(
+        private val meetingDao: MeetingDao,
+        private val userDao: UserDao,
+        private val uuidHelper: UUIDHelper,
+        private val dateHelper: DateHelper) {
     fun execute(name: String, creatorId: Long): Long {
-        return 0
+        if (!userDao.existsById(creatorId)) {
+            throw NotFoundException("USER_NOT_FOUND: User with id $creatorId not found")
+        }
+
+        val newUUID = uuidHelper.generateRandomUUID()
+        val now = dateHelper.localDateTimeNow()
+
+        val meetingToSave = Meeting(
+                id = 0,
+                name = name,
+                uuid = newUUID,
+                createdDateTime = now,
+                creatorId = creatorId)
+        val savedMeeting = meetingDao.save(meetingToSave)
+        return savedMeeting.id
     }
 }

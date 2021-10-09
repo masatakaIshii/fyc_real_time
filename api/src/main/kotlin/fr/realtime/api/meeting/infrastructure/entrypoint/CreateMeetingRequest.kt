@@ -1,4 +1,4 @@
-package fr.realtime.api.meeting.infrastructure
+package fr.realtime.api.meeting.infrastructure.entrypoint
 
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank
@@ -9,6 +9,6 @@ data class CreateMeetingRequest (
     val name: String = "",
 
     @field:Min(1, message = "Meeting creator id has to be min 1")
-    @field:Pattern(regexp = "[0-9]+",  message = "Meetin creaztor id has to be integer")
+    @field:Pattern(regexp = "[0-9]+",  message = "Meetin creator id has to be integer")
     val creatorId: String = ""
 )

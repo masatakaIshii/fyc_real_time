@@ -7,10 +7,14 @@ import org.springframework.stereotype.Service
 @Service
 class JpaMeetingDao(
         private val meetingRepository: MeetingRepository,
-        private val meetingMapper: MeetingMapper) : MeetingDao {
+        private val meetingMapper: MeetingMapper
+) : MeetingDao {
+
     override fun save(meeting: Meeting): Meeting {
         val meetingToSave = meetingMapper.domainToEntity(meeting)
         val savedMeeting = meetingRepository.save(meetingToSave)
         return meetingMapper.entityToDomain(savedMeeting)
     }
+
+    override fun findAll(): List<Meeting> = meetingRepository.findAll().map(meetingMapper::entityToDomain)
 }

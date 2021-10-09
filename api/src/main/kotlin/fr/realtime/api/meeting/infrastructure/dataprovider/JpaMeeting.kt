@@ -12,7 +12,7 @@ data class JpaMeeting(
 
         var name: String,
 
-        var uuid: UUID?,
+        var uuid: UUID? = null,
 
         @get:Column(name = "created_date_time")
         var createdDateTime: LocalDateTime,

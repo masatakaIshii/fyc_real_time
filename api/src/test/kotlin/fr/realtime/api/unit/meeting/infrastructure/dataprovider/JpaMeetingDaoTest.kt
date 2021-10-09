@@ -56,4 +56,28 @@ internal class JpaMeetingDaoTest {
             assertThat(result).isEqualTo(expected)
         }
     }
+
+    @DisplayName("findAll method")
+    @Nested
+    inner class FindAll {
+        @Test
+        fun `should call meeting repository`() {
+            jpaMeetingDao.findAll()
+
+            verify(mockMeetingRepository, times(1)).findAll()
+        }
+
+        @Test
+        fun `when get all meeting entities should return list domain meeting`() {
+            val listMeetingEntities = listOf(
+                    JpaMeeting(id = 35, name = "meeting 35", uuid = UUID.randomUUID(), createdDateTime = LocalDateTime.now(), creatorId = 325, isClosed = true)
+            )
+            `when`(mockMeetingRepository.findAll()).thenReturn(listMeetingEntities)
+
+            val result = jpaMeetingDao.findAll()
+
+            val expected = listMeetingEntities.map(meetingMapper::entityToDomain)
+            assertThat(result).isEqualTo(expected)
+        }
+    }
 }

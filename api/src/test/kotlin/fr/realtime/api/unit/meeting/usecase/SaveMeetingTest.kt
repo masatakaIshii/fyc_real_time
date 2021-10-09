@@ -1,4 +1,4 @@
-package fr.realtime.api.unit
+package fr.realtime.api.unit.meeting.usecase
 
 import fr.realtime.api.meeting.core.Meeting
 import fr.realtime.api.meeting.core.MeetingDao

@@ -1,7 +1,10 @@
 package fr.realtime.api.integration.meeting.infrastructure
 
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import fr.realtime.api.meeting.core.Meeting
 import fr.realtime.api.meeting.infrastructure.entrypoint.CreateMeetingRequest
+import fr.realtime.api.meeting.usecase.FindAllMeetings
 import fr.realtime.api.meeting.usecase.SaveMeeting
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -16,9 +19,11 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
+import java.time.LocalDateTime
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -31,6 +36,9 @@ internal class MeetingControllerTest {
 
     @MockBean
     lateinit var mockSaveMeeting: SaveMeeting
+
+    @MockBean
+    lateinit var mockFindAllMeetings: FindAllMeetings
 
     @Nested
     inner class PostMeetingTest {
@@ -98,6 +106,39 @@ internal class MeetingControllerTest {
 
             assertThat(location).isEqualTo(uri)
         }
+    }
 
+    @Nested
+    inner class FindAllTest {
+        @Test
+        fun `should call use case to find all meetings`() {
+            mockMvc.perform(
+                    get("/api/meeting")
+            )
+
+            verify(mockFindAllMeetings, times(1)).execute()
+        }
+
+        @Test
+        fun `when use case return list meetings should return response all meetings`() {
+            val listMeetings = listOf(
+                    Meeting(id = 1, name = "first meeting", createdDateTime = LocalDateTime.now(), creatorId = 354, isClosed = false),
+                    Meeting(id = 2, name = "second meeting", createdDateTime = LocalDateTime.now(), creatorId = 658, isClosed = true)
+            )
+            `when`(mockFindAllMeetings.execute()).thenReturn(listMeetings)
+
+            val contentAsString = mockMvc.perform(
+                    get("/api/meeting")
+            ).andExpect(status().isOk)
+                    .andReturn()
+                    .response
+                    .contentAsString
+
+            println(contentAsString)
+
+            val itemType = object : TypeToken<List<Meeting>>(){}.type
+            val result: List<Meeting> = gson.fromJson(contentAsString, itemType)
+            assertThat(result).isEqualTo(listMeetings)
+        }
     }
 }

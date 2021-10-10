@@ -1,22 +1,27 @@
 package fr.realtime.api.theme.infrastructure.entrypoint
 
+import fr.realtime.api.theme.core.Theme
+import fr.realtime.api.theme.infrastructure.usecase.FindThemeById
 import fr.realtime.api.theme.infrastructure.usecase.SaveTheme
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.created
+import org.springframework.http.ResponseEntity.ok
 import org.springframework.validation.annotation.Validated
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import java.net.URI
 import javax.validation.Valid
+import javax.validation.constraints.Min
+import javax.validation.constraints.Pattern
 
 @RestController
 @RequestMapping("/api/theme")
 @Validated
-class ThemeController(val saveTheme: SaveTheme) {
+class ThemeController(
+        private val saveTheme: SaveTheme,
+        private val findThemeById: FindThemeById
+) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @PostMapping
@@ -30,5 +35,15 @@ class ThemeController(val saveTheme: SaveTheme) {
                 .buildAndExpand(newThemeId)
                 .toUri()
         return created(uri).build()
+    }
+
+    @GetMapping("{themeId}")
+    fun findById(
+            @Valid
+            @Min(1)
+            @Pattern(regexp = "[0-9]+",  message = "Theme creator id has to be integer")
+            @PathVariable themeId: String): ResponseEntity<Theme> {
+        val foundTheme = findThemeById.execute(themeId.toLong())
+        return ok(foundTheme)
     }
 }

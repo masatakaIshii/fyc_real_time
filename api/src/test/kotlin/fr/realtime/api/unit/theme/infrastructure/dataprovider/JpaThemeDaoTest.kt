@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
+import java.util.*
 
 @ExtendWith(MockitoExtension::class)
 internal class JpaThemeDaoTest {
@@ -49,6 +50,44 @@ internal class JpaThemeDaoTest {
             val result = jpaThemeDao.save(themeDomainToSave)
 
             val expectedTheme = themeMapper.entityToDomain(savedThemeEntity)
+            assertThat(result).isEqualTo(expectedTheme)
+        }
+    }
+
+    @DisplayName("findById method")
+    @Nested
+    inner class FindByIdMethod {
+        private val themeId = 54L
+
+        @Test
+        fun `should call repository to find theme by id`() {
+            jpaThemeDao.findById(themeId)
+
+            verify(mockThemeRepository, times(1)).findById(themeId)
+        }
+
+        @Test
+        fun `when theme not found should return null`() {
+            `when`(mockThemeRepository.findById(themeId)).thenReturn(Optional.empty())
+
+            val result = jpaThemeDao.findById(themeId)
+
+            assertThat(result).isNull()
+        }
+
+        @Test
+        fun `when theme found should return found theme`() {
+            val foundEntityTheme = JpaTheme(
+                    id = themeId,
+                    name = "theme name",
+                    username = "username",
+                    meetingId = 365
+            )
+            `when`(mockThemeRepository.findById(themeId)).thenReturn(Optional.of(foundEntityTheme))
+
+            val result = jpaThemeDao.findById(themeId)
+
+            val expectedTheme = themeMapper.entityToDomain(foundEntityTheme)
             assertThat(result).isEqualTo(expectedTheme)
         }
     }

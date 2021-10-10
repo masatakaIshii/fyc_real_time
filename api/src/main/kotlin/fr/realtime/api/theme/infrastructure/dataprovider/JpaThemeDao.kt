@@ -14,4 +14,10 @@ class JpaThemeDao(
         val savedTheme = themeRepository.save(themeToSave)
         return themeMapper.entityToDomain(savedTheme)
     }
+
+    override fun findById(themeId: Long): Theme? {
+        return themeRepository.findById(themeId)
+                .map(themeMapper::entityToDomain)
+                .orElse(null)
+    }
 }

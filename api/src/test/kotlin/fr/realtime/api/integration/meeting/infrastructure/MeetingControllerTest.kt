@@ -134,8 +134,6 @@ internal class MeetingControllerTest {
                     .response
                     .contentAsString
 
-            println(contentAsString)
-
             val itemType = object : TypeToken<List<Meeting>>(){}.type
             val result: List<Meeting> = gson.fromJson(contentAsString, itemType)
             assertThat(result).isEqualTo(listMeetings)

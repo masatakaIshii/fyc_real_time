@@ -10,14 +10,23 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import java.lang.Exception
+import javax.validation.ConstraintViolationException
 
 @RestControllerAdvice
 class ExceptionControllerAdvice {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ConstraintViolationException::class)
+    fun handleConstraintException(ex: ConstraintViolationException): String {
+        logger.error(ex.message)
+        return ex.message.toString()
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun handleValidationExceptions(ex: MethodArgumentNotValidException): Map<String, String?>? {
+    fun handleValidationException(ex: MethodArgumentNotValidException): Map<String, String?>? {
         val errors: MutableMap<String, String?> = HashMap()
         ex.bindingResult.allErrors.forEach { error: ObjectError ->
             val fieldName = (error as FieldError).field
@@ -44,5 +53,11 @@ class ExceptionControllerAdvice {
         logger.error("Forbidden => ${ex.message}")
 
         return ex.message
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Exception::class)
+    fun handleException(ex: Exception): String {
+        return "INTERNAL SERVER ERROR"
     }
 }

@@ -1,7 +1,9 @@
 package fr.realtime.api.integration.theme.infrastructure
 
 import com.google.gson.Gson
+import fr.realtime.api.theme.core.Theme
 import fr.realtime.api.theme.infrastructure.entrypoint.CreateThemeRequest
+import fr.realtime.api.theme.infrastructure.usecase.FindThemeById
 import fr.realtime.api.theme.infrastructure.usecase.SaveTheme
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -16,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
@@ -32,6 +35,9 @@ internal class ThemeControllerTest {
 
     @MockBean
     lateinit var mockSaveTheme: SaveTheme
+
+    @MockBean
+    lateinit var mockFindThemeById: FindThemeById
 
     @Nested
     inner class PostThemeTest {
@@ -120,6 +126,46 @@ internal class ThemeControllerTest {
                     .buildAndExpand(2583L)
                     .toUriString()
             assertThat(location).isEqualTo(expectedUri)
+        }
+    }
+
+    @Nested
+    inner class FindThemeByIdTest {
+        private val themeId = 354L
+
+        @ParameterizedTest
+        @ValueSource(strings = ["notnum", "-1", "0", "1.2"])
+        fun `when id not correct should send bad request response`(notCorrectThemeId: String) {
+            mockMvc.perform(get("/api/theme/$notCorrectThemeId"))
+                    .andExpect(status().isBadRequest)
+        }
+
+        @Test
+        fun `should call use case findThemeById`() {
+            mockMvc.perform(get("/api/theme/$themeId"))
+
+            verify(mockFindThemeById, times(1)).execute(themeId)
+        }
+
+        @Test
+        fun `when find theme by use case should return ok response with found theme`() {
+            val foundTheme = Theme(
+                    id = themeId,
+                    name = "found theme",
+                    username = "username",
+                    meetingId = 35L
+            )
+
+            `when`(mockFindThemeById.execute(themeId)).thenReturn(foundTheme)
+
+            val contentAsString = mockMvc.perform(get("/api/theme/$themeId"))
+                    .andExpect(status().isOk)
+                    .andReturn()
+                    .response
+                    .contentAsString
+
+            val result = gson.fromJson(contentAsString, Theme::class.java)
+            assertThat(result).isEqualTo(foundTheme)
         }
     }
 }

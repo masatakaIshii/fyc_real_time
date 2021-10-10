@@ -1,5 +1,7 @@
 package fr.realtime.api.shared
 
+import fr.realtime.api.shared.core.exceptions.ForbiddenException
+import fr.realtime.api.shared.core.exceptions.NotFoundException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.validation.FieldError
@@ -28,4 +30,19 @@ class ExceptionControllerAdvice {
         return errors
     }
 
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NotFoundException::class)
+    fun handleNotFoundException(ex: NotFoundException): String {
+        logger.error("Not found => ${ex.message}")
+
+        return ex.message
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(ForbiddenException::class)
+    fun handleForbiddenException(ex: ForbiddenException): String {
+        logger.error("Forbidden => ${ex.message}")
+
+        return ex.message
+    }
 }

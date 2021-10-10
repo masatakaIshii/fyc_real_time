@@ -1,4 +1,4 @@
-package fr.realtime.api.theme.infrastructure
+package fr.realtime.api.theme.infrastructure.entrypoint
 
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank

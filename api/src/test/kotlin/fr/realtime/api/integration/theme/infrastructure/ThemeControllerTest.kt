@@ -1,17 +1,15 @@
 package fr.realtime.api.integration.theme.infrastructure
 
 import com.google.gson.Gson
-import fr.realtime.api.theme.core.Theme
-import fr.realtime.api.theme.infrastructure.CreateThemeRequest
-import fr.realtime.api.theme.usecase.SaveTheme
+import fr.realtime.api.theme.infrastructure.entrypoint.CreateThemeRequest
+import fr.realtime.api.theme.infrastructure.usecase.SaveTheme
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.NullAndEmptySource
 import org.junit.jupiter.params.provider.ValueSource
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -20,9 +18,10 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 
 @AutoConfigureMockMvc
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 internal class ThemeControllerTest {
 
     @Autowired
@@ -93,9 +92,34 @@ internal class ThemeControllerTest {
                             .content(gson.toJson(request))
             )
 
-            val expectedTheme = Theme(name = request.name, username = request.username, meetingId = meetingId)
+            verify(mockSaveTheme, times(1)).execute(
+                    request.name,
+                    request.username,
+                    request.meetingId.toLong()
+            )
+        }
 
-            verify(mockSaveTheme, times(1)).execute(expectedTheme)
+        private val newThemeId = 2583L
+
+        @Test
+        fun `when theme saved and use case return new theme id should return created response`() {
+            val request = CreateThemeRequest(name = "new theme", username = "user name", meetingId = meetingId.toString())
+            `when`(mockSaveTheme.execute(request.name, request.username, request.meetingId.toLong())).thenReturn(newThemeId)
+
+            val location = mockMvc.perform(
+                    post("/api/theme")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(gson.toJson(request))
+            ).andExpect(status().isCreated)
+                    .andReturn()
+                    .response
+                    .getHeader("Location")
+
+            val expectedUri = ServletUriComponentsBuilder.fromCurrentRequestUri()
+                    .path("/api/theme/{id}")
+                    .buildAndExpand(2583L)
+                    .toUriString()
+            assertThat(location).isEqualTo(expectedUri)
         }
     }
 }

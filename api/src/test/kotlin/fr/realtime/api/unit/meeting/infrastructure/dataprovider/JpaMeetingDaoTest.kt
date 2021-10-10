@@ -80,4 +80,44 @@ internal class JpaMeetingDaoTest {
             assertThat(result).isEqualTo(expected)
         }
     }
+
+    @DisplayName("findById method")
+    @Nested
+
+    inner class FindById {
+        private val meetingId = 38L
+
+        @Test
+        fun `should call meeting repository to find meeting by id`() {
+            jpaMeetingDao.findById(meetingId)
+
+            verify(mockMeetingRepository, times(1)).findById(meetingId)
+        }
+
+        @Test
+        fun `when repository found meeting should return found meeting`() {
+            val entityMeeting = JpaMeeting(
+                    meetingId,
+                    name = "meeting name",
+                    createdDateTime = LocalDateTime.now(),
+                    creatorId = 3658L,
+                    isClosed = false
+            )
+            `when`(mockMeetingRepository.findById(meetingId)).thenReturn(Optional.of(entityMeeting))
+
+            val result = jpaMeetingDao.findById(meetingId)
+
+            val expectedMeeting = meetingMapper.entityToDomain(entityMeeting)
+            assertThat(result).isEqualTo(expectedMeeting)
+        }
+
+        @Test
+        fun `when repository not found meeting should return null`() {
+            `when`(mockMeetingRepository.findById(meetingId)).thenReturn(Optional.empty())
+
+            val result = jpaMeetingDao.findById(meetingId)
+
+            assertThat(result).isNull()
+        }
+    }
 }

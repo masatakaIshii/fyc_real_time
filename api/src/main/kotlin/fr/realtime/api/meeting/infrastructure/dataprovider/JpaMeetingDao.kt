@@ -17,4 +17,10 @@ class JpaMeetingDao(
     }
 
     override fun findAll(): List<Meeting> = meetingRepository.findAll().map(meetingMapper::entityToDomain)
+
+    override fun findById(meetingId: Long): Meeting? {
+        return meetingRepository.findById(meetingId)
+                .map(meetingMapper::entityToDomain)
+                .orElse(null)
+    }
 }

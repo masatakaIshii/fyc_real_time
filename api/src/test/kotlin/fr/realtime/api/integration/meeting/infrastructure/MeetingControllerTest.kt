@@ -5,7 +5,9 @@ import com.google.gson.reflect.TypeToken
 import fr.realtime.api.meeting.core.Meeting
 import fr.realtime.api.meeting.infrastructure.entrypoint.CreateMeetingRequest
 import fr.realtime.api.meeting.usecase.FindAllMeetings
+import fr.realtime.api.meeting.usecase.FindMeetingThemes
 import fr.realtime.api.meeting.usecase.SaveMeeting
+import fr.realtime.api.theme.core.Theme
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -29,16 +31,19 @@ import java.time.LocalDateTime
 @AutoConfigureMockMvc
 internal class MeetingControllerTest {
     @Autowired
-    lateinit var mockMvc: MockMvc;
+    lateinit var mockMvc: MockMvc
 
     @Autowired
-    lateinit var gson: Gson;
+    lateinit var gson: Gson
 
     @MockBean
     lateinit var mockSaveMeeting: SaveMeeting
 
     @MockBean
     lateinit var mockFindAllMeetings: FindAllMeetings
+
+    @MockBean
+    lateinit var mockFindMeetingThemes: FindMeetingThemes
 
     @Nested
     inner class PostMeetingTest {
@@ -134,9 +139,47 @@ internal class MeetingControllerTest {
                     .response
                     .contentAsString
 
-            val itemType = object : TypeToken<List<Meeting>>(){}.type
+            val itemType = object : TypeToken<List<Meeting>>() {}.type
             val result: List<Meeting> = gson.fromJson(contentAsString, itemType)
             assertThat(result).isEqualTo(listMeetings)
+        }
+    }
+
+    @Nested
+    inner class FindMeetingThemesTest {
+        private val meetingId = 6854L
+
+        @ParameterizedTest
+        @ValueSource(strings = ["notnum", "-1", "0", "1.2"])
+        fun `when meetingId is not correct should send bad request response`(notCorrectMeetingId: String) {
+            mockMvc.perform(get("/api/meeting/$notCorrectMeetingId/theme"))
+                    .andExpect(status().isBadRequest)
+        }
+
+        @Test
+        fun `when meetingId is correct should call use case FindMeetingThemes`() {
+            mockMvc.perform(get("/api/meeting/$meetingId/theme"))
+
+            verify(mockFindMeetingThemes, times(1)).execute(meetingId)
+        }
+
+        @Test
+        fun `when use case FindMeetingThemes return list of themes should return list`() {
+            val listThemes = listOf(
+                    Theme(354, "theme354", "username354", meetingId),
+                    Theme(2538, "theme2538", "username2538", meetingId)
+            )
+            `when`(mockFindMeetingThemes.execute(meetingId)).thenReturn(listThemes)
+
+            val contentAsString = mockMvc.perform(get("/api/meeting/$meetingId/theme"))
+                    .andExpect(status().isOk)
+                    .andReturn()
+                    .response
+                    .contentAsString
+
+            val itemType = object : TypeToken<List<Theme>>() {}.type
+            val result : List<Theme> = gson.fromJson(contentAsString, itemType)
+            assertThat(result).isEqualTo(listThemes)
         }
     }
 }

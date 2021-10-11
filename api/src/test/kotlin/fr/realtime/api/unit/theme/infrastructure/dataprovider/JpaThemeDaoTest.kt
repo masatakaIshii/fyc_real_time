@@ -91,4 +91,31 @@ internal class JpaThemeDaoTest {
             assertThat(result).isEqualTo(expectedTheme)
         }
     }
+
+    @DisplayName("findAllByMeetingId method")
+    @Nested
+    inner class FindAllByMeetingId {
+        private val meetingId = 354L
+
+        @Test
+        fun `should call theme repository to find all themes by meeting id`() {
+            jpaThemeDao.findAllByMeetingId(meetingId)
+
+            verify(mockThemeRepository, times(1)).findAllByMeetingId(meetingId)
+        }
+
+        @Test
+        fun `when theme repository return list theme entities should return list theme domains`() {
+            val listThemes = listOf(
+                    JpaTheme(654, "name654", "username654", meetingId),
+                    JpaTheme(254, "theme254", "username254", meetingId)
+            )
+            `when`(mockThemeRepository.findAllByMeetingId(meetingId)).thenReturn(listThemes)
+
+            val result = jpaThemeDao.findAllByMeetingId(meetingId)
+
+            val expected = listThemes.map(themeMapper::entityToDomain)
+            assertThat(result).isEqualTo(expected)
+        }
+    }
 }

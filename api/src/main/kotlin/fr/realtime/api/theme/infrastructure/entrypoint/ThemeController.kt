@@ -39,9 +39,8 @@ class ThemeController(
 
     @GetMapping("{themeId}")
     fun findById(
-            @Valid
             @Min(1)
-            @Pattern(regexp = "[0-9]+",  message = "Theme creator id has to be integer")
+            @Pattern(regexp = "[0-9]+",  message = "Theme id has to be integer")
             @PathVariable themeId: String): ResponseEntity<Theme> {
         val foundTheme = findThemeById.execute(themeId.toLong())
         return ok(foundTheme)

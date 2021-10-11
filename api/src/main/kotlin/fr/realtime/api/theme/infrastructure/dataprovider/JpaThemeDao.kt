@@ -15,9 +15,12 @@ class JpaThemeDao(
         return themeMapper.entityToDomain(savedTheme)
     }
 
-    override fun findById(themeId: Long): Theme? {
-        return themeRepository.findById(themeId)
-                .map(themeMapper::entityToDomain)
-                .orElse(null)
-    }
+    override fun findById(themeId: Long): Theme? = themeRepository
+            .findById(themeId)
+            .map(themeMapper::entityToDomain)
+            .orElse(null)
+
+    override fun findAllByMeetingId(meetingId: Long): List<Theme> = themeRepository
+            .findAllByMeetingId(meetingId)
+            .map(themeMapper::entityToDomain)
 }

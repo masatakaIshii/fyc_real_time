@@ -16,11 +16,14 @@ class JpaMeetingDao(
         return meetingMapper.entityToDomain(savedMeeting)
     }
 
-    override fun findAll(): List<Meeting> = meetingRepository.findAll().map(meetingMapper::entityToDomain)
+    override fun findAll(): List<Meeting> = meetingRepository
+            .findAll()
+            .map(meetingMapper::entityToDomain)
 
-    override fun findById(meetingId: Long): Meeting? {
-        return meetingRepository.findById(meetingId)
-                .map(meetingMapper::entityToDomain)
-                .orElse(null)
-    }
+    override fun findById(meetingId: Long): Meeting? = meetingRepository
+            .findById(meetingId)
+            .map(meetingMapper::entityToDomain)
+            .orElse(null)
+
+    override fun existsById(meetingId: Long): Boolean = meetingRepository.existsById(meetingId)
 }

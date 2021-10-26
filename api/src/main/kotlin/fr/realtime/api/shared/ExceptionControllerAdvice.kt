@@ -4,13 +4,13 @@ import fr.realtime.api.shared.core.exceptions.ForbiddenException
 import fr.realtime.api.shared.core.exceptions.NotFoundException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.validation.FieldError
 import org.springframework.validation.ObjectError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import java.lang.Exception
 import javax.validation.ConstraintViolationException
 
 @RestControllerAdvice
@@ -20,7 +20,8 @@ class ExceptionControllerAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ConstraintViolationException::class)
     fun handleConstraintException(ex: ConstraintViolationException): String {
-        logger.error(ex.message)
+        logger.warn(ex.message)
+
         return ex.message.toString()
     }
 
@@ -34,7 +35,7 @@ class ExceptionControllerAdvice {
             errors[fieldName] = errorMessage
         }
 
-        logger.error("Validation errors => $errors")
+        logger.warn("Validation errors => $errors")
 
         return errors
     }
@@ -42,7 +43,7 @@ class ExceptionControllerAdvice {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NotFoundException::class)
     fun handleNotFoundException(ex: NotFoundException): String {
-        logger.error("Not found => ${ex.message}")
+        logger.warn("Not found => ${ex.message}")
 
         return ex.message
     }
@@ -50,7 +51,15 @@ class ExceptionControllerAdvice {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(ForbiddenException::class)
     fun handleForbiddenException(ex: ForbiddenException): String {
-        logger.error("Forbidden => ${ex.message}")
+        logger.warn("Forbidden => ${ex.message}")
+
+        return ex.message
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun handleHttpMessageNotReadableException(ex: HttpMessageNotReadableException): String? {
+        logger.warn(ex.message)
 
         return ex.message
     }
@@ -58,6 +67,7 @@ class ExceptionControllerAdvice {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception::class)
     fun handleException(ex: Exception): String {
+        logger.error("INTERNAL ERROR : ${ex.message}")
         return "INTERNAL SERVER ERROR"
     }
 }

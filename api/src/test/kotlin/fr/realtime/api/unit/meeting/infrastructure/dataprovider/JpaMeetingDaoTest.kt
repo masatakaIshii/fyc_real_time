@@ -83,7 +83,6 @@ internal class JpaMeetingDaoTest {
 
     @DisplayName("findById method")
     @Nested
-
     inner class FindById {
         private val meetingId = 38L
 

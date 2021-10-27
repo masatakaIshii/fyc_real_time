@@ -4,9 +4,11 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import fr.realtime.api.meeting.core.Meeting
 import fr.realtime.api.meeting.infrastructure.entrypoint.CreateMeetingRequest
+import fr.realtime.api.meeting.infrastructure.entrypoint.UpdateMeetingRequest
 import fr.realtime.api.meeting.usecase.FindAllMeetings
 import fr.realtime.api.meeting.usecase.FindMeetingThemes
 import fr.realtime.api.meeting.usecase.SaveMeeting
+import fr.realtime.api.meeting.usecase.UpdateMeeting
 import fr.realtime.api.theme.core.Theme
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -21,11 +23,11 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import java.time.LocalDateTime
+import java.util.*
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -44,6 +46,9 @@ internal class MeetingControllerTest {
 
     @MockBean
     lateinit var mockFindMeetingThemes: FindMeetingThemes
+
+    @MockBean
+    lateinit var mockUpdateMeeting: UpdateMeeting
 
     @Nested
     inner class PostMeetingTest {
@@ -178,8 +183,91 @@ internal class MeetingControllerTest {
                     .contentAsString
 
             val itemType = object : TypeToken<List<Theme>>() {}.type
-            val result : List<Theme> = gson.fromJson(contentAsString, itemType)
+            val result: List<Theme> = gson.fromJson(contentAsString, itemType)
             assertThat(result).isEqualTo(listThemes)
+        }
+    }
+
+    @Nested
+    inner class UpdateMeetingTest {
+        private val meetingId = 3658L
+
+        @Test
+        fun `when request not send should return bad request`() {
+            mockMvc.perform(put("/api/meeting/$meetingId"))
+                    .andExpect(status().isBadRequest)
+        }
+
+
+        @ParameterizedTest
+        @ValueSource(strings = ["notnum", "-1", "0", "1.2"])
+        fun `when meetingId is not correct should send bad request response`(notCorrectMeetingId: String) {
+            val request = UpdateMeetingRequest("new meeting name", UUID.randomUUID(), true)
+            mockMvc.perform(put("/api/meeting/$notCorrectMeetingId")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(gson.toJson(request))
+            )
+                    .andExpect(status().isBadRequest)
+        }
+
+        @Test
+        fun `when meetingId is correct should call UpdateMeeting usecase`() {
+            val request = UpdateMeetingRequest("new meeting name", UUID.randomUUID(), true)
+            mockMvc.perform(
+                    put("/api/meeting/$meetingId").contentType(MediaType.APPLICATION_JSON)
+                            .content(gson.toJson(request))
+            )
+
+            verify(mockUpdateMeeting, times(1))
+                    .execute(meetingId, request.name, request.uuid, request.isClosed)
+        }
+
+        @Test
+        fun `when request contain only name should call UpdateMeeting usecase with name and others param null`() {
+            val request = UpdateMeetingRequest("new meeting name")
+            mockMvc.perform(
+                    put("/api/meeting/$meetingId").contentType(MediaType.APPLICATION_JSON)
+                            .content(gson.toJson(request))
+            )
+
+            verify(mockUpdateMeeting, times(1))
+                    .execute(meetingId, request.name, null, null)
+        }
+
+        @Test
+        fun `when request contain only uuid should call UpdateMeeting usecase with uuid and others param null`() {
+            val uuid = UUID.randomUUID()
+            val request = UpdateMeetingRequest(uuid = uuid)
+
+            mockMvc.perform(
+                    put("/api/meeting/$meetingId").contentType(MediaType.APPLICATION_JSON)
+                            .content(gson.toJson(request))
+            )
+
+            verify(mockUpdateMeeting, times(1))
+                    .execute(meetingId, null, uuid, null)
+        }
+
+        @Test
+        fun `when request contain only isClosed should call UpdateMeeting usecase with isClosed and others param null`() {
+            val request = UpdateMeetingRequest(isClosed = false)
+
+            mockMvc.perform(
+                    put("/api/meeting/$meetingId").contentType(MediaType.APPLICATION_JSON)
+                            .content(gson.toJson(request))
+            )
+
+            verify(mockUpdateMeeting, times(1))
+                    .execute(meetingId, null, null, false)
+        }
+
+        @Test
+        fun `when request success should return ok response`() {
+            val request = UpdateMeetingRequest("new meeting name", UUID.randomUUID(), true)
+            mockMvc.perform(
+                    put("/api/meeting/$meetingId").contentType(MediaType.APPLICATION_JSON)
+                            .content(gson.toJson(request))
+            ).andExpect(status().isNoContent)
         }
     }
 }

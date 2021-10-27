@@ -12,7 +12,8 @@ class MeetingMapper : Mapper<Meeting, JpaMeeting> {
             entity.name,
             entity.uuid,
             entity.createdDateTime,
-            entity.creatorId
+            entity.creatorId,
+            entity.isClosed
     )
 
     override fun domainToEntity(domain: Meeting): JpaMeeting = JpaMeeting(
@@ -20,6 +21,7 @@ class MeetingMapper : Mapper<Meeting, JpaMeeting> {
             domain.name,
             domain.uuid,
             domain.createdDateTime,
-            domain.creatorId
+            domain.creatorId,
+            domain.isClosed
     )
 }

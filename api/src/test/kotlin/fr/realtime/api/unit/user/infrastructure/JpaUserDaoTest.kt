@@ -42,7 +42,7 @@ internal class JpaUserDaoTest {
 
         @Test
         fun `when user found should return founded user`() {
-            val foundUser = JpaUser(userId, "found user", "password")
+            val foundUser = JpaUser(userId, "found user", "password", "found@user.com")
             `when`(mockUserRepository.findById(userId)).thenReturn(Optional.of(foundUser))
 
             val result = jpaUserDao.findById(userId)
@@ -56,7 +56,7 @@ internal class JpaUserDaoTest {
     inner class SaveTest {
         @Test
         fun `when user saved should return saved user`() {
-            val userToSave = User(id = 0, name = "user name", password = "password")
+            val userToSave = User(id = 0, name = "user name", password = "password", "user@name.com")
             val entityUserToSave = userMapper.domainToEntity(userToSave)
 
             val entitySavedUser = entityUserToSave.copy(id = 3584L)
@@ -68,6 +68,47 @@ internal class JpaUserDaoTest {
             val expected = userMapper.entityToDomain(entitySavedUser)
             assertThat(result).isEqualTo(expected)
         }
+    }
 
+    @Nested
+    inner class FindByEmail {
+        private val email = "user@mail.com"
+
+        @Test
+        fun `should call userRepository to find user by email`() {
+            jpaUserDao.findByEmail(email)
+
+            verify(mockUserRepository, times(1)).findByEmail(email)
+        }
+
+        @Test
+        fun `when user not found by email should return null`() {
+            `when`(mockUserRepository.findByEmail(email)).thenReturn(Optional.empty())
+
+            val result = jpaUserDao.findByEmail(email)
+
+            assertThat(result).isNull()
+        }
+
+        @Test
+        fun `when user found should return found user`() {
+            val foundUser = JpaUser(
+                id = 354L,
+                name = "name",
+                email = email,
+                password = "password"
+            )
+            `when`(mockUserRepository.findByEmail(email)).thenReturn(Optional.of(foundUser))
+
+            val result = jpaUserDao.findByEmail(email)
+
+            val expectedUser = User(
+                id = foundUser.id,
+                name = foundUser.name,
+                email = foundUser.email,
+                password = foundUser.password
+            )
+            assertThat(result).isEqualTo(expectedUser)
+        }
     }
 }

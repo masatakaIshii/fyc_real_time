@@ -6,4 +6,8 @@ interface UserDao {
     fun existsById(userId: Long): Boolean
 
     fun save(user: User): User
+
+    fun findByEmail(email: String): User?
+
+    fun existsByEmail(email: String): Boolean
 }

@@ -21,7 +21,7 @@ class UserBootstrap(private val userDao: UserDao, private val passwordUtils: Pas
         val passwordEncoded = passwordUtils.hash(password, PasswordUtils.CURRENT_SALT.toByteArray())
 
         val initialUser = User(
-                0, name = "root", password = passwordEncoded
+                0, name = "root", password = passwordEncoded, "root@root.com"
         )
 
         val savedUser = userDao.save(initialUser)

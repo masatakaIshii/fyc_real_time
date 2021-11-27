@@ -1,5 +1,6 @@
 package fr.realtime.api.user.infrastructure.dataprovider
 
+import fr.realtime.api.user.core.Role
 import javax.persistence.*
 
 @Entity(name = "user")
@@ -15,5 +16,8 @@ data class JpaUser(
         var password: String = "",
 
         @get:Column(unique = true, nullable = false)
-        var email: String
+        var email: String,
+
+        @get:ManyToMany
+        var roles: Set<JpaRole>
 )

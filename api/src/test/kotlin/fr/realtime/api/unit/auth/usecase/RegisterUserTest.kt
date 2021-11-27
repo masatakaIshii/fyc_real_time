@@ -56,14 +56,14 @@ internal class RegisterUserTest {
 
         registerUser.execute(name, email, password)
 
-        verify(mockPasswordUtils, times(1)).hash(password, PasswordUtils.CURRENT_SALT.toByteArray())
+        verify(mockPasswordUtils, times(1)).encode(password)
     }
 
     @Test
     fun `when password encoded should save new user with encoded password`() {
         `when`(mockUserDao.existsByEmail(email)).thenReturn(false)
         val encodedPassword = "encoded password"
-        `when`(mockPasswordUtils.hash(password, PasswordUtils.CURRENT_SALT.toByteArray()))
+        `when`(mockPasswordUtils.encode(password))
             .thenReturn(encodedPassword)
 
         registerUser.execute(name, email, password)

@@ -13,9 +13,14 @@ class JpaRoleDao(
 
     override fun existsByName(roleName: RoleName): Boolean = roleRepository.existsByName(roleName)
 
-    override fun save(role: Role): Role? {
+    override fun save(role: Role): Role {
         val roleToSave = roleMapper.domainToEntity(role)
         val savedRole = roleRepository.save(roleToSave)
         return roleMapper.entityToDomain(savedRole)
+    }
+
+    override fun findByName(roleName: RoleName): Role? {
+        val foundRole = roleRepository.findByName(roleName)
+        return foundRole.map(roleMapper::entityToDomain).orElse(null)
     }
 }

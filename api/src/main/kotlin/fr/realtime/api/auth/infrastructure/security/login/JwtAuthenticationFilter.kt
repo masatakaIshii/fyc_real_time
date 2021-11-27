@@ -52,7 +52,7 @@ class JwtAuthenticationFilter(
         chain: FilterChain?,
         authResult: Authentication?
     ) {
-        logger.info("succesful authentication")
+        logger.info("successful authentication")
         val token = authResult?.let { tokenProvider.createToken(it) }
         response?.addHeader(HttpHeaders.AUTHORIZATION, "Bearer $token")
         response?.writer?.flush()

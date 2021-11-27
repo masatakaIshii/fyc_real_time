@@ -9,6 +9,7 @@ import fr.realtime.api.theme.core.Theme
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.*
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
@@ -29,6 +30,7 @@ class MeetingController(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     fun create(@Valid @RequestBody request: CreateMeetingRequest): ResponseEntity<URI> {
         logger.info("Create meeting with name `${request.name}`")
         val newMeetingId = saveMeeting.execute(request.name, request.creatorId.toLong())
@@ -54,6 +56,7 @@ class MeetingController(
     }
 
     @PutMapping("{meetingId}")
+    @PreAuthorize("hasRole('ADMIN')")
     fun updateMeeting(
             @Min(1)
             @Pattern(regexp = "[0-9]+", message = "Meeting id has to be integer")

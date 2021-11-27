@@ -2,6 +2,8 @@ package fr.realtime.api.user.infrastructure.dataprovider
 
 import fr.realtime.api.user.core.User
 import fr.realtime.api.user.core.UserDao
+import org.hibernate.Hibernate
+import org.springframework.data.jpa.provider.HibernateUtils
 import org.springframework.stereotype.Service
 
 @Service
@@ -14,6 +16,7 @@ class JpaUserDao(private val userRepository: UserRepository, private val userMap
 
     override fun save(user: User): User {
         val userToSave = userMapper.domainToEntity(user)
+
         val savedUser = userRepository.save(userToSave)
         return userMapper.entityToDomain(savedUser)
     }

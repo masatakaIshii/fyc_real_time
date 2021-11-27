@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
+import java.util.*
 
 @ExtendWith(MockitoExtension::class)
 internal class JpaRoleDaoTest {
@@ -80,6 +81,37 @@ internal class JpaRoleDaoTest {
                 jpaSavedRole.name
             )
             assertThat(result).isEqualTo(expectedRole)
+        }
+    }
+
+    @Nested
+    inner class FindByNameTest {
+        private val roleName = RoleName.ROLE_ADMIN
+
+        @Test
+        fun `should call find by role name of role repository`() {
+            jpaRoleDao.findByName(roleName)
+
+            verify(mockRoleRepository, times(1)).findByName(roleName)
+        }
+
+        @Test
+        fun `when find by role name return role name should return role`() {
+            `when`(mockRoleRepository.findByName(roleName)).thenReturn(
+                Optional.of(JpaRole(1, roleName))
+            )
+
+            val result = jpaRoleDao.findByName(roleName)
+
+            val expectedRole = Role(1, roleName)
+            assertThat(result).isEqualTo(expectedRole)
+        }
+
+        @Test
+        fun `when find by role name return null should return null`() {
+            `when`(mockRoleRepository.findByName(roleName)).thenReturn(Optional.empty())
+
+            assertThat(jpaRoleDao.findByName(roleName)).isNull()
         }
     }
 }

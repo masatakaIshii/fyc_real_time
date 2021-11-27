@@ -22,6 +22,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.TestExecutionEvent
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -52,6 +54,28 @@ internal class MeetingControllerTest {
 
     @Nested
     inner class PostMeetingTest {
+
+        @Test
+        fun `when user not login should return unauthorized response`() {
+            mockMvc.perform(
+                post("/api/meeting")
+            ).andExpect(status().isUnauthorized)
+        }
+
+        @WithMockUser
+        @Test
+        fun `when user is not admin should return forbidden response`() {
+            val request = CreateMeetingRequest(name = "meeting name", creatorId = "654")
+            mockMvc.perform(
+                post("/api/meeting")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(gson.toJson(request))
+            ).andExpect(status().isForbidden)
+        }
+
+        @WithMockUser(
+            roles = ["USER", "ADMIN"],
+        )
         @ParameterizedTest
         @NullAndEmptySource
         fun `when request name empty should send bad response`(emptyName: String?) {
@@ -63,6 +87,9 @@ internal class MeetingControllerTest {
             ).andExpect(status().isBadRequest)
         }
 
+        @WithMockUser(
+            roles = ["USER", "ADMIN"],
+        )
         @ParameterizedTest
         @NullAndEmptySource
         fun `when request creator id empty should send bad response`(emptyCreatorId: String?) {
@@ -74,6 +101,9 @@ internal class MeetingControllerTest {
             ).andExpect(status().isBadRequest);
         }
 
+        @WithMockUser(
+            roles = ["USER", "ADMIN"],
+        )
         @ParameterizedTest
         @ValueSource(strings = ["notnum", "-99", "-1", "0", "1.5"])
         fun `when request creator id not integer min 1 should send bad response`(badCreatorId: String) {
@@ -84,6 +114,9 @@ internal class MeetingControllerTest {
             ).andExpect(status().isBadRequest)
         }
 
+        @WithMockUser(
+            roles = ["USER", "ADMIN"],
+        )
         @Test
         fun `when request correct should call save meeting use case`() {
             val request = CreateMeetingRequest(name = "meeting name", creatorId = "654")
@@ -95,6 +128,9 @@ internal class MeetingControllerTest {
             verify(mockSaveMeeting, times(1)).execute(request.name, 654L)
         }
 
+        @WithMockUser(
+            roles = ["USER", "ADMIN"],
+        )
         @Test
         fun `when new meeting saved should send new URI`() {
             val request = CreateMeetingRequest(name = "meeting name", creatorId = "654")
@@ -120,6 +156,15 @@ internal class MeetingControllerTest {
 
     @Nested
     inner class FindAllTest {
+
+        @Test
+        fun `user should be authenticated`() {
+            mockMvc.perform(
+                get("/api/meeting")
+            ).andExpect(status().isUnauthorized)
+        }
+
+        @WithMockUser
         @Test
         fun `should call use case to find all meetings`() {
             mockMvc.perform(
@@ -129,6 +174,7 @@ internal class MeetingControllerTest {
             verify(mockFindAllMeetings, times(1)).execute()
         }
 
+        @WithMockUser
         @Test
         fun `when use case return list meetings should return response all meetings`() {
             val listMeetings = listOf(
@@ -154,6 +200,13 @@ internal class MeetingControllerTest {
     inner class FindMeetingThemesTest {
         private val meetingId = 6854L
 
+        @Test
+        fun `when user not authenticate shoudl return unauthorized response`() {
+            mockMvc.perform(get("/api/meeting/1/theme"))
+                .andExpect(status().isUnauthorized)
+        }
+
+        @WithMockUser
         @ParameterizedTest
         @ValueSource(strings = ["notnum", "-1", "0", "1.2"])
         fun `when meetingId is not correct should send bad request response`(notCorrectMeetingId: String) {
@@ -161,6 +214,7 @@ internal class MeetingControllerTest {
                     .andExpect(status().isBadRequest)
         }
 
+        @WithMockUser
         @Test
         fun `when meetingId is correct should call use case FindMeetingThemes`() {
             mockMvc.perform(get("/api/meeting/$meetingId/theme"))
@@ -168,6 +222,7 @@ internal class MeetingControllerTest {
             verify(mockFindMeetingThemes, times(1)).execute(meetingId)
         }
 
+        @WithMockUser
         @Test
         fun `when use case FindMeetingThemes return list of themes should return list`() {
             val listThemes = listOf(
@@ -193,12 +248,30 @@ internal class MeetingControllerTest {
         private val meetingId = 3658L
 
         @Test
+        fun `when user is not authenticated should send unauthorized response`() {
+            mockMvc.perform(put("/api/meeting/$meetingId"))
+                .andExpect(status().isUnauthorized)
+        }
+
+        @WithMockUser
+        @Test
+        fun `when user is not admin should send forbidden response`() {
+            val request = UpdateMeetingRequest("new meeting name", UUID.randomUUID(), true)
+            mockMvc.perform(put("/api/meeting/$meetingId")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(gson.toJson(request))
+            )
+                .andExpect(status().isForbidden)
+        }
+
+        @WithMockUser(roles = ["USER", "ADMIN"])
+        @Test
         fun `when request not send should return bad request`() {
             mockMvc.perform(put("/api/meeting/$meetingId"))
                     .andExpect(status().isBadRequest)
         }
 
-
+        @WithMockUser(roles = ["USER", "ADMIN"])
         @ParameterizedTest
         @ValueSource(strings = ["notnum", "-1", "0", "1.2"])
         fun `when meetingId is not correct should send bad request response`(notCorrectMeetingId: String) {
@@ -210,6 +283,7 @@ internal class MeetingControllerTest {
                     .andExpect(status().isBadRequest)
         }
 
+        @WithMockUser(roles = ["USER", "ADMIN"])
         @Test
         fun `when meetingId is correct should call UpdateMeeting usecase`() {
             val request = UpdateMeetingRequest("new meeting name", UUID.randomUUID(), true)
@@ -222,6 +296,7 @@ internal class MeetingControllerTest {
                     .execute(meetingId, request.name, request.uuid, request.isClosed)
         }
 
+        @WithMockUser(roles = ["USER", "ADMIN"])
         @Test
         fun `when request contain only name should call UpdateMeeting usecase with name and others param null`() {
             val request = UpdateMeetingRequest("new meeting name")
@@ -234,6 +309,7 @@ internal class MeetingControllerTest {
                     .execute(meetingId, request.name, null, null)
         }
 
+        @WithMockUser(roles = ["USER", "ADMIN"])
         @Test
         fun `when request contain only uuid should call UpdateMeeting usecase with uuid and others param null`() {
             val uuid = UUID.randomUUID()
@@ -248,6 +324,7 @@ internal class MeetingControllerTest {
                     .execute(meetingId, null, uuid, null)
         }
 
+        @WithMockUser(roles = ["USER", "ADMIN"])
         @Test
         fun `when request contain only isClosed should call UpdateMeeting usecase with isClosed and others param null`() {
             val request = UpdateMeetingRequest(isClosed = false)
@@ -261,6 +338,7 @@ internal class MeetingControllerTest {
                     .execute(meetingId, null, null, false)
         }
 
+        @WithMockUser(roles = ["USER", "ADMIN"])
         @Test
         fun `when request success should return ok response`() {
             val request = UpdateMeetingRequest("new meeting name", UUID.randomUUID(), true)

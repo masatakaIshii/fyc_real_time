@@ -3,7 +3,7 @@ package fr.realtime.api
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
-@SpringBootApplication
+@SpringBootApplication()
 class ApiApplication
 
 fun main(args: Array<String>) {

@@ -17,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
@@ -43,6 +44,14 @@ internal class ThemeControllerTest {
     inner class PostThemeTest {
         private val meetingId = 594L
 
+        @Test
+        fun `when user not login should return unauthorized response`() {
+            mockMvc.perform(
+                post("/api/theme")
+            ).andExpect(status().isUnauthorized)
+        }
+
+        @WithMockUser
         @ParameterizedTest
         @NullAndEmptySource
         fun `when request name empty should send bad response`(emptyName: String?) {
@@ -60,6 +69,7 @@ internal class ThemeControllerTest {
             assertThat(contentAsString).isEqualTo("{\"name\":\"Theme name cannot be empty\"}")
         }
 
+        @WithMockUser
         @ParameterizedTest
         @NullAndEmptySource
         fun `when request username empty should send bad response`(emptyUserName: String?) {
@@ -77,6 +87,7 @@ internal class ThemeControllerTest {
             assertThat(contentAsString).isEqualTo("{\"username\":\"Theme username cannot be empty\"}")
         }
 
+        @WithMockUser
         @ParameterizedTest
         @ValueSource(strings = ["-999", "-1", "0", "notnumber"])
         fun `when request meetingId not unsigned integer should send bad request`(notCorrectMeetingId: String) {
@@ -89,6 +100,7 @@ internal class ThemeControllerTest {
                     .andExpect(status().isBadRequest)
         }
 
+        @WithMockUser
         @Test
         fun `when request correct should call save theme`() {
             val request = CreateThemeRequest(name = "new theme", username = "user name", meetingId = meetingId.toString())
@@ -107,6 +119,7 @@ internal class ThemeControllerTest {
 
         private val newThemeId = 2583L
 
+        @WithMockUser
         @Test
         fun `when theme saved and use case return new theme id should return created response`() {
             val request = CreateThemeRequest(name = "new theme", username = "user name", meetingId = meetingId.toString())
@@ -133,13 +146,23 @@ internal class ThemeControllerTest {
     inner class FindThemeByIdTest {
         private val themeId = 354L
 
+        @Test
+        fun `when user not login should return unauthorized response`() {
+            mockMvc.perform(get("/api/theme/$themeId"))
+                .andExpect(status().isUnauthorized)
+        }
+
+        @WithMockUser
         @ParameterizedTest
         @ValueSource(strings = ["notnum", "-1", "0", "1.2"])
         fun `when id not correct should send bad request response`(notCorrectThemeId: String) {
-            mockMvc.perform(get("/api/theme/$notCorrectThemeId"))
+            mockMvc.perform(
+                get("/api/theme/$notCorrectThemeId")
+            )
                     .andExpect(status().isBadRequest)
         }
 
+        @WithMockUser
         @Test
         fun `should call use case findThemeById`() {
             mockMvc.perform(get("/api/theme/$themeId"))
@@ -147,6 +170,7 @@ internal class ThemeControllerTest {
             verify(mockFindThemeById, times(1)).execute(themeId)
         }
 
+        @WithMockUser
         @Test
         fun `when find theme by use case should return ok response with found theme`() {
             val foundTheme = Theme(

@@ -5,8 +5,10 @@ import fr.realtime.api.shared.core.exceptions.NotFoundException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.validation.FieldError
 import org.springframework.validation.ObjectError
+import org.springframework.web.HttpMediaTypeNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -56,6 +58,14 @@ class ExceptionControllerAdvice {
         return ex.message
     }
 
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(AccessDeniedException::class)
+    fun handleAccessDeniedException(ex: AccessDeniedException): String? {
+        logger.warn("Access denied")
+
+        return ex.message
+    }
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun handleHttpMessageNotReadableException(ex: HttpMessageNotReadableException): String? {
@@ -64,10 +74,19 @@ class ExceptionControllerAdvice {
         return ex.message
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(HttpMediaTypeNotSupportedException::class)
+    fun handleHttpMediaTypeNotSupportedException(ex: HttpMediaTypeNotSupportedException): String? {
+        logger.warn(ex.message)
+
+        return "MEDIA_TYPE_NOT_SUPPORTED : ${ex.message}"
+    }
+
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception::class)
     fun handleException(ex: Exception): String {
-        logger.error("INTERNAL ERROR : ${ex.message}")
+        logger.error("INTERNAL ERROR : ${ex.message}, type exception : $ex")
+
         return "INTERNAL SERVER ERROR"
     }
 }

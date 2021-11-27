@@ -1,6 +1,7 @@
 package fr.realtime.api.shared.infrastructure.utils
 
 import fr.realtime.api.shared.core.utils.PasswordUtils
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 import java.security.NoSuchAlgorithmException
 import java.security.spec.InvalidKeySpecException
@@ -8,7 +9,7 @@ import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 
 @Component
-class PasswordUtilsImpl : PasswordUtils {
+class PasswordUtilsImpl (private val passwordEncoder: PasswordEncoder): PasswordUtils {
 
     override fun hash(password: String, salt: ByteArray): String {
         val spec = PBEKeySpec(password.toCharArray(), salt, 1000, 256)
@@ -23,4 +24,7 @@ class PasswordUtilsImpl : PasswordUtils {
             spec.clearPassword()
         }
     }
+
+    override fun encode(password: String): String =
+        passwordEncoder.encode(hash(password, PasswordUtils.CURRENT_SALT.toByteArray()))
 }

@@ -6,4 +6,6 @@ interface PasswordUtils {
     }
 
     fun hash(password: String, salt: ByteArray): String
+
+    fun encode(password: String): String
 }

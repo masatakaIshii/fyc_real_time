@@ -4,10 +4,14 @@ import fr.realtime.api.shared.core.exceptions.ForbiddenException
 import fr.realtime.api.shared.core.utils.PasswordUtils
 import fr.realtime.api.user.core.User
 import fr.realtime.api.user.core.UserDao
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
-class RegisterUser(private val userDao: UserDao, private val passwordUtils: PasswordUtils) {
+class RegisterUser(
+    private val userDao: UserDao,
+    private val passwordUtils: PasswordUtils
+    ) {
 
     @Throws(ForbiddenException::class)
     fun execute(name: String, email: String, password: String) {
@@ -17,7 +21,7 @@ class RegisterUser(private val userDao: UserDao, private val passwordUtils: Pass
             )
         }
 
-        val encodedPassword = passwordUtils.hash(password, PasswordUtils.CURRENT_SALT.toByteArray())
+        val encodedPassword = passwordUtils.encode(password)
 
         userDao.save(User(0, name, encodedPassword, email))
     }

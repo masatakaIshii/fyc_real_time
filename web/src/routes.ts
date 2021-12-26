@@ -1,9 +1,11 @@
-import Home from "../src/components/Home/Home.svelte"
+import HomePage from "./components/HomePage/HomePage.svelte"
 import SignIn from "./components/SignIn/SignIn.svelte"
 import SignUp from "./components/SignUp/SignUp.svelte"
+import ListMeeting from "./components/Meeting/ListMeeting.svelte"
 
 export const routes = {
-    '/': Home,
+    '/': HomePage,
     '/sign-in': SignIn,
-    '/sign-up': SignUp
+    '/sign-up': SignUp,
+    '/meeting': ListMeeting
 }

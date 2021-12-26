@@ -3,6 +3,7 @@ package fr.realtime.api.user.infrastructure.bootstrap
 import fr.realtime.api.shared.core.utils.PasswordUtils
 import fr.realtime.api.user.core.*
 import org.slf4j.LoggerFactory
+
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
@@ -19,7 +20,7 @@ class UserBootstrap(
     fun on(event: ApplicationReadyEvent) {
         val password = "root"
 
-        logger.info("Create initial user 'root' with password '$password'")
+        logger.info("Create initial user 'root' with password {}", password)
         val passwordEncoded = passwordUtils.encode(password)
 
         val userRole = if (!roleDao.existsByName(RoleName.ROLE_USER)) {

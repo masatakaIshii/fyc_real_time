@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
+
 @Configuration
 @EnableWebSecurity(debug = true)
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -29,11 +30,14 @@ class SecurityConfig(
 ) : WebSecurityConfigurerAdapter() {
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
+
     override fun configure(http: HttpSecurity?) {
-        http?.cors()?.and()?.csrf()
-            ?.disable()
-            ?.exceptionHandling()?.authenticationEntryPoint(unauthorizedHandler)?.and()
+        http
             ?.sessionManagement()?.sessionCreationPolicy(SessionCreationPolicy.STATELESS)?.and()
+
+            ?.cors()?.and()
+            ?.csrf()?.disable()
+            ?.exceptionHandling()?.authenticationEntryPoint(unauthorizedHandler)?.and()
             ?.authorizeRequests()
             ?.antMatchers("/api/auth/register", "/api/login")?.permitAll()
             ?.antMatchers("/api/**")?.hasRole("USER")

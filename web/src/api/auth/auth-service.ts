@@ -1,32 +1,37 @@
-export async function signIn(email: string, password: string): Promise<void> {
-    const body = JSON.stringify({
+import { post } from "../../helper/url-helper";
+import { token } from "../../stores/use-token";
+
+interface SignInRequest {
+    email: string,
+    password: string
+}
+
+export async function signIn(email: string, password: string) {
+    const request = {
         email,
         password,
-    });
-    const requestInfo = {
-        method: "POST",
-        headers: {
-            Accept: "*/*",
-            "Content-Type": "application/json",
-        },
-        mode: "cors",
-        body,
-    } as RequestInit;
-    const request = new Request(
-        "http://localhost:8080/api/login",
-        requestInfo
-    );
+    } as SignInRequest;
+
     try {
-        const responsePost = await fetch(request);
+        const responsePost = await post("api/login", request);
         if (responsePost.status === 401) {
-            throw Error("Email and/or password are wrong, check first if you sign up")
+            throw Error("Email and/or password are wrong, check first if you sign up");
         }
         if (responsePost.status === 200) {
-            console.log(responsePost.headers.get("Authorization"));
-            // TODO : save authorization jwt without 'Bearer' in session storage
+            const authorization = responsePost.headers.get("Authorization");
+            if (!authorization.startsWith("Bearer ")) {
+                throw "Problem jwt token";
+            }
+            const jwtToken = authorization.slice("Bearer ".length, authorization.length);
+            token.set(jwtToken);
+            sessionStorage.setItem("jwt-token", jwtToken);
         }
 
     } catch (err) {
-        throw Error(err)
+        throw Error(err);
     }
+}
+
+export function signOut() {
+    sessionStorage.removeItem("jwt-token");
 }

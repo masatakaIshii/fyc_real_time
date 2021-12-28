@@ -35,7 +35,7 @@ class UserBootstrap(
             0, name = "root",
             password = passwordEncoded,
             "root@root.com",
-            roles = setOf(adminRole)
+            roles = setOf(userRole, adminRole)
         )
 
         val savedUser = userDao.save(initialUser)

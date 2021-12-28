@@ -24,7 +24,7 @@ internal class JpaUserDaoTest {
 
     @BeforeEach
     fun setup() {
-        jpaUserDao = JpaUserDao(mockUserRepository, userMapper)
+        jpaUserDao = JpaUserDao(mockUserRepository, userMapper, RoleMapper())
     }
 
     @Nested

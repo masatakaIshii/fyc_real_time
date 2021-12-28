@@ -2,7 +2,6 @@ package fr.realtime.api.auth.infrastructure.security
 
 import fr.realtime.api.shared.core.exceptions.ForbiddenException
 import fr.realtime.api.user.core.UserDao
-import org.hibernate.Hibernate
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -23,12 +22,11 @@ class UserDetailsServiceImpl (private val userDao: UserDao) : UserDetailsService
 
         val user = userDao.findByEmail(username)
             ?: throw UsernameNotFoundException("USER_EMAIL_NOT_FOUND: user with email $username not found")
-
-        logger.info("user found : $user")
         val authorities = mutableListOf<SimpleGrantedAuthority>()
+        val userRoles = userDao.findRolesByUserId(user.id)
 
-        Hibernate.initialize(user)
-        for (role in user.roles) {
+        for (role in userRoles) {
+            logger.info(role.toString())
             authorities.add(SimpleGrantedAuthority(role.name.toString()))
         }
 

@@ -51,7 +51,7 @@ class SecurityConfig(
                     tokenProvider
                 )
             )
-            ?.addFilterBefore(JwtAuthorizationFilter(tokenProvider), UsernamePasswordAuthenticationFilter::class.java)
+            ?.addFilterBefore(JwtAuthorizationFilter(tokenProvider, userDao), UsernamePasswordAuthenticationFilter::class.java)
             ?: logger.error("Problem when configure http")
     }
 

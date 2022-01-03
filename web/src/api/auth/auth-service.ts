@@ -1,5 +1,6 @@
 import { post } from "../../helper/url-helper";
-import { token } from "../../stores/use-token";
+import { push } from "svelte-spa-router";
+import { isLoggedIn } from "../../stores/use-is-logged-in";
 
 interface SignInRequest {
     email: string,
@@ -23,7 +24,7 @@ export async function signIn(email: string, password: string) {
                 throw "Problem jwt token";
             }
             const jwtToken = authorization.slice("Bearer ".length, authorization.length);
-            token.set(jwtToken);
+            isLoggedIn.set(true);
             sessionStorage.setItem("jwt-token", jwtToken);
         }
 
@@ -32,6 +33,8 @@ export async function signIn(email: string, password: string) {
     }
 }
 
-export function signOut() {
+export function logout() {
     sessionStorage.removeItem("jwt-token");
+    isLoggedIn.reset();
+    push("/");
 }

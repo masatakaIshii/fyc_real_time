@@ -1,5 +1,6 @@
 package fr.realtime.api.meeting.infrastructure.entrypoint
 
+import fr.realtime.api.meeting.core.DtoMeeting
 import fr.realtime.api.meeting.core.Meeting
 import fr.realtime.api.meeting.usecase.FindAllMeetings
 import fr.realtime.api.meeting.usecase.FindMeetingThemes
@@ -31,9 +32,13 @@ class MeetingController(
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    fun create(@Valid @RequestBody request: CreateMeetingRequest): ResponseEntity<URI> {
+    fun create(
+        @Valid @RequestBody request: CreateMeetingRequest,
+        @RequestAttribute("userId")
+        @Min(value = 1, message = "id has to be equal or more than 1") userId: Long,
+    ): ResponseEntity<URI> {
         logger.info("Create meeting with name `${request.name}`")
-        val newMeetingId = saveMeeting.execute(request.name, request.creatorId.toLong())
+        val newMeetingId = saveMeeting.execute(request.name, userId)
 
         val uri = ServletUriComponentsBuilder.fromCurrentRequestUri()
                 .path("/{id}")
@@ -43,7 +48,7 @@ class MeetingController(
     }
 
     @GetMapping
-    fun findAll(): ResponseEntity<List<Meeting>> = ok(findAllMeetings.execute())
+    fun findAll(): ResponseEntity<List<DtoMeeting>> = ok(findAllMeetings.execute())
 
     @GetMapping("{meetingId}/theme")
     fun findMeetingThemes(

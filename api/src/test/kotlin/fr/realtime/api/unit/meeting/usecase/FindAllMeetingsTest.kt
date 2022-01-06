@@ -3,6 +3,7 @@ package fr.realtime.api.unit.meeting.usecase
 import fr.realtime.api.meeting.core.Meeting
 import fr.realtime.api.meeting.core.MeetingDao
 import fr.realtime.api.meeting.usecase.FindAllMeetings
+import fr.realtime.api.user.core.UserDao
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -19,9 +20,12 @@ internal class FindAllMeetingsTest {
     @Mock
     lateinit var mockMeetingDao: MeetingDao
 
+    @Mock
+    lateinit var mockUserDao: UserDao
+
     @BeforeEach
     fun setup() {
-        findAllMeetings = FindAllMeetings(mockMeetingDao)
+        findAllMeetings = FindAllMeetings(mockMeetingDao, mockUserDao)
     }
 
     @Test

@@ -9,7 +9,7 @@
 	<Router {routes} />
 </main>
 
-<style>
+<style lang="scss">
 	main {
 		text-align: center;
 		max-width: 240px;
@@ -28,6 +28,18 @@
 		cursor: pointer;
 		background-color: #ff3e00;
 		color: #fff;
+	}
+
+	:global(.form-group) {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		margin-bottom: 1em;
+	}
+
+	:global(.form-btn) {
+		display: flex;
+		justify-content: end;
 	}
 
 	@media (min-width: 640px) {

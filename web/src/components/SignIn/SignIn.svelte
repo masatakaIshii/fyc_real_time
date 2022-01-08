@@ -34,7 +34,7 @@
 
 <h1>Sign In</h1>
 
-<form on:submit|preventDefault={submit}>
+<form on:submit|preventDefault={submit} class="sign-in-form">
     <div class="form-group">
         <label for="email">Email :</label>
         <input id="email" type="email" bind:value={email} required />
@@ -50,20 +50,10 @@
 </form>
 
 <style lang="scss">
-    form {
+    .sign-in-form {
         display: flex;
         justify-content: center;
         flex-direction: column;
         padding: 0 38%;
-        .form-group {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            margin-bottom: 1em;
-        }
-        .form-btn {
-            display: flex;
-            justify-content: end;
-        }
     }
 </style>

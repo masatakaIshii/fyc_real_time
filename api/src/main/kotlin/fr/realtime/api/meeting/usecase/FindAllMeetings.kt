@@ -14,6 +14,6 @@ class FindAllMeetings(
     fun execute(): List<DtoMeeting> = meetingDao.findAll().map {
         val creator = userDao.findById(it.creatorId)
         val dtoCreator = creator?.let { DtoUser(creator.id, creator.name, creator.email) }
-        DtoMeeting(it.id, it.name, it.uuid, it.createdDateTime, dtoCreator, it.isClosed)
+        DtoMeeting(it.id, it.name, it.description, it.uuid, it.createdDateTime, dtoCreator, it.isClosed)
     }
 }

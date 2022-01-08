@@ -36,19 +36,20 @@ internal class UpdateMeetingTest {
         assertThatThrownBy {
             updateMeeting.execute(meetingId, "new meeting name", UUID.randomUUID(), false)
         }
-                .isExactlyInstanceOf(NotFoundException::class.java)
-                .hasMessage("Meeting with id '$meetingId' not found")
+            .isExactlyInstanceOf(NotFoundException::class.java)
+            .hasMessage("Meeting with id '$meetingId' not found")
     }
 
     @Test
     fun `when meeting found by id should save meeting with new name, uuid and isClosed`() {
         val savedMeeting = Meeting(
-                id = meetingId,
-                name = "meeting name",
-                uuid = UUID.randomUUID(),
-                isClosed = false,
-                creatorId = 7,
-                createdDateTime = LocalDateTime.now()
+            id = meetingId,
+            name = "meeting name",
+            description = "description",
+            uuid = UUID.randomUUID(),
+            isClosed = false,
+            creatorId = 7,
+            createdDateTime = LocalDateTime.now()
         )
         `when`(mockMeetingDao.findById(meetingId)).thenReturn(savedMeeting)
         val uuid = UUID.randomUUID()
@@ -56,9 +57,9 @@ internal class UpdateMeetingTest {
         updateMeeting.execute(meetingId, "new meeting name", uuid, true)
 
         val expectedMeetingToSave = savedMeeting.copy(
-                name = "new meeting name",
-                uuid = uuid,
-                isClosed = true
+            name = "new meeting name",
+            uuid = uuid,
+            isClosed = true
         )
         verify(mockMeetingDao, times(1)).save(expectedMeetingToSave)
     }
@@ -66,21 +67,22 @@ internal class UpdateMeetingTest {
     @Test
     fun `when params id and name are defined and others params are null should update only meeting name`() {
         val savedMeeting = Meeting(
-                id = meetingId,
-                name = "meeting name",
-                uuid = UUID.randomUUID(),
-                isClosed = false,
-                creatorId = 7,
-                createdDateTime = LocalDateTime.now()
+            id = meetingId,
+            name = "meeting name",
+            description = "description",
+            uuid = UUID.randomUUID(),
+            isClosed = false,
+            creatorId = 7,
+            createdDateTime = LocalDateTime.now()
         )
         `when`(mockMeetingDao.findById(meetingId)).thenReturn(savedMeeting)
 
         updateMeeting.execute(meetingId, "new meeting name", null, null)
 
         val expectedMeetingToSave = savedMeeting.copy(
-                name = "new meeting name",
-                uuid = savedMeeting.uuid,
-                isClosed = savedMeeting.isClosed
+            name = "new meeting name",
+            uuid = savedMeeting.uuid,
+            isClosed = savedMeeting.isClosed
         )
         verify(mockMeetingDao, times(1)).save(expectedMeetingToSave)
     }
@@ -88,12 +90,13 @@ internal class UpdateMeetingTest {
     @Test
     fun `when params id and uuid are defined and others params are null should update only meeting uuid`() {
         val savedMeeting = Meeting(
-                id = meetingId,
-                name = "meeting name",
-                uuid = UUID.randomUUID(),
-                isClosed = false,
-                creatorId = 7,
-                createdDateTime = LocalDateTime.now()
+            id = meetingId,
+            name = "meeting name",
+            description = "description",
+            uuid = UUID.randomUUID(),
+            isClosed = false,
+            creatorId = 7,
+            createdDateTime = LocalDateTime.now()
         )
         `when`(mockMeetingDao.findById(meetingId)).thenReturn(savedMeeting)
         val newUUID = UUID.randomUUID()
@@ -101,9 +104,9 @@ internal class UpdateMeetingTest {
         updateMeeting.execute(meetingId, null, newUUID, null)
 
         val expectedMeetingToSave = savedMeeting.copy(
-                name = "meeting name",
-                uuid = newUUID,
-                isClosed = savedMeeting.isClosed
+            name = "meeting name",
+            uuid = newUUID,
+            isClosed = savedMeeting.isClosed
         )
         verify(mockMeetingDao, times(1)).save(expectedMeetingToSave)
     }
@@ -111,21 +114,22 @@ internal class UpdateMeetingTest {
     @Test
     fun `when params id and isClosed are defined and others params are null should update only meeting isClosed param`() {
         val savedMeeting = Meeting(
-                id = meetingId,
-                name = "meeting name",
-                uuid = UUID.randomUUID(),
-                isClosed = false,
-                creatorId = 7,
-                createdDateTime = LocalDateTime.now()
+            id = meetingId,
+            name = "meeting name",
+            description = "description",
+            uuid = UUID.randomUUID(),
+            isClosed = false,
+            creatorId = 7,
+            createdDateTime = LocalDateTime.now()
         )
         `when`(mockMeetingDao.findById(meetingId)).thenReturn(savedMeeting)
 
         updateMeeting.execute(meetingId, null, null, true)
 
         val expectedMeetingToSave = savedMeeting.copy(
-                name = "meeting name",
-                uuid = savedMeeting.uuid,
-                isClosed = true
+            name = "meeting name",
+            uuid = savedMeeting.uuid,
+            isClosed = true
         )
         verify(mockMeetingDao, times(1)).save(expectedMeetingToSave)
     }

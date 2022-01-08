@@ -3,10 +3,10 @@ package fr.realtime.api.unit.meeting.usecase
 import fr.realtime.api.meeting.core.Meeting
 import fr.realtime.api.meeting.core.MeetingDao
 import fr.realtime.api.meeting.usecase.SaveMeeting
-import fr.realtime.api.user.core.UserDao
 import fr.realtime.api.shared.core.exceptions.NotFoundException
 import fr.realtime.api.shared.core.utils.DateHelper
 import fr.realtime.api.shared.core.utils.UUIDHelper
+import fr.realtime.api.user.core.UserDao
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
 import java.time.LocalDateTime
 import java.util.*
@@ -47,8 +47,8 @@ internal class SaveMeetingTest {
     fun `when user not exists by creator id should throw exception`() {
         `when`(mockUserDao.existsById(creatorId)).thenReturn(false)
 
-        assertThatThrownBy { saveMeeting.execute("new meeting name", creatorId) }
-                .isExactlyInstanceOf(NotFoundException::class.java)
+        assertThatThrownBy { saveMeeting.execute("new meeting name", "", creatorId) }
+            .isExactlyInstanceOf(NotFoundException::class.java)
     }
 
     @DisplayName("when user exists")
@@ -66,18 +66,19 @@ internal class SaveMeetingTest {
             val localDateTimeNow = LocalDateTime.now()
             `when`(mockDateHelper.localDateTimeNow()).thenReturn(localDateTimeNow)
             val meetingToSave = Meeting(
-                    0,
-                    name = "new meeting name",
-                    uuid = generateUUID,
-                    creatorId = creatorId,
-                    createdDateTime = localDateTimeNow
+                0,
+                name = "new meeting name",
+                description = "",
+                uuid = generateUUID,
+                creatorId = creatorId,
+                createdDateTime = localDateTimeNow
             )
             val newMeetingId = 65L
             val savedMeeting = meetingToSave.copy(id = newMeetingId)
 
             `when`(mockMeetingDao.save(meetingToSave)).thenReturn(savedMeeting)
 
-            val result = saveMeeting.execute("new meeting name", creatorId)
+            val result = saveMeeting.execute("new meeting name", "", creatorId)
 
             assertThat(result).isEqualTo(newMeetingId)
         }

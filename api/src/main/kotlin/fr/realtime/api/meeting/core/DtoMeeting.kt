@@ -7,6 +7,7 @@ import java.util.*
 data class DtoMeeting(
     val id: Long,
     val name: String,
+    val description: String,
     val uuid: UUID? = null,
     val createdDateTime: LocalDateTime,
     val creator: DtoUser? = null,

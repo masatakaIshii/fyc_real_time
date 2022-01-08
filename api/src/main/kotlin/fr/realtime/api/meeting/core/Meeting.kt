@@ -6,6 +6,7 @@ import java.util.*
 data class Meeting(
         val id: Long,
         val name: String,
+        val description: String,
         val uuid: UUID? = null,
         val createdDateTime: LocalDateTime,
         val creatorId: Long,

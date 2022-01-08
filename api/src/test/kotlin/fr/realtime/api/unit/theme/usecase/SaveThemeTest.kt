@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
 import java.time.LocalDateTime
 import java.util.*
@@ -43,37 +43,41 @@ internal class SaveThemeTest {
     fun `when meeting id not found should throw not found exception`() {
         `when`(mockMeetingDao.findById(meetingId)).thenReturn(null)
 
-        assertThatThrownBy{saveTheme.execute(themeName, themeUsername, meetingId)}
-                .isExactlyInstanceOf(NotFoundException::class.java)
-                .hasMessage("Meeting with id '$meetingId' not found")
+        assertThatThrownBy { saveTheme.execute(themeName, themeUsername, meetingId) }
+            .isExactlyInstanceOf(NotFoundException::class.java)
+            .hasMessage("Meeting with id '$meetingId' not found")
     }
 
     @Test
     fun `when found meeting is close should throw exception`() {
         val foundMeeting = Meeting(
-                id = 3,
-                name = "meeting name",
-                uuid = UUID.randomUUID(),
-                createdDateTime = LocalDateTime.now(),
-                creatorId = 357,
-                isClosed = true)
+            id = 3,
+            name = "meeting name",
+            description = "description",
+            uuid = UUID.randomUUID(),
+            createdDateTime = LocalDateTime.now(),
+            creatorId = 357,
+            isClosed = true
+        )
         `when`(mockMeetingDao.findById(meetingId)).thenReturn(foundMeeting)
 
-        assertThatThrownBy{saveTheme.execute(themeName, themeUsername, meetingId)}
-                .isExactlyInstanceOf(ForbiddenException::class.java)
-                .hasMessage("Not allowed to create theme in closed meeting")
+        assertThatThrownBy { saveTheme.execute(themeName, themeUsername, meetingId) }
+            .isExactlyInstanceOf(ForbiddenException::class.java)
+            .hasMessage("Not allowed to create theme in closed meeting")
     }
 
     @Test
     fun `when theme is saved should return saved theme id`() {
         val savedThemeId = 25L
         val foundMeeting = Meeting(
-                id = 3,
-                name = "meeting name",
-                uuid = UUID.randomUUID(),
-                createdDateTime = LocalDateTime.now(),
-                creatorId = 357,
-                isClosed = false)
+            id = 3,
+            name = "meeting name",
+            description = "description",
+            uuid = UUID.randomUUID(),
+            createdDateTime = LocalDateTime.now(),
+            creatorId = 357,
+            isClosed = false
+        )
         `when`(mockMeetingDao.findById(meetingId)).thenReturn(foundMeeting)
         val themeToSave = Theme(id = 0, name = themeName, username = themeUsername, meetingId = meetingId)
         val savedTheme = themeToSave.copy(id = savedThemeId)

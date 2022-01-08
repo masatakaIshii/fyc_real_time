@@ -8,20 +8,22 @@ import org.springframework.stereotype.Component
 class MeetingMapper : Mapper<Meeting, JpaMeeting> {
 
     override fun entityToDomain(entity: JpaMeeting): Meeting = Meeting(
-            entity.id,
-            entity.name,
-            entity.uuid,
-            entity.createdDateTime,
-            entity.creatorId,
-            entity.isClosed
+        entity.id,
+        entity.name,
+        entity.description,
+        entity.uuid,
+        entity.createdDateTime,
+        entity.creatorId,
+        entity.isClosed
     )
 
     override fun domainToEntity(domain: Meeting): JpaMeeting = JpaMeeting(
-            domain.id,
-            domain.name,
-            domain.uuid,
-            domain.createdDateTime,
-            domain.creatorId,
-            domain.isClosed
+        domain.id,
+        domain.name,
+        domain.description,
+        domain.uuid,
+        domain.createdDateTime,
+        domain.creatorId,
+        domain.isClosed
     )
 }

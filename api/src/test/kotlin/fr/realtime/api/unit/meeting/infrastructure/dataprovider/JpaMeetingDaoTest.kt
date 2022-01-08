@@ -40,11 +40,12 @@ internal class JpaMeetingDaoTest {
             val createdDateTime = LocalDateTime.now()
             val creatorId = 354L
             val meetingToSave = Meeting(
-                    0L,
-                    name = "new meeting",
-                    uuid = uuid,
-                    createdDateTime = createdDateTime,
-                    creatorId = creatorId
+                0L,
+                name = "new meeting",
+                description = "description",
+                uuid = uuid,
+                createdDateTime = createdDateTime,
+                creatorId = creatorId
             )
             val entityMeetingToSave = meetingMapper.domainToEntity(meetingToSave)
             val entitySavedMeeting = entityMeetingToSave.copy(id = 3654L)
@@ -70,7 +71,14 @@ internal class JpaMeetingDaoTest {
         @Test
         fun `when get all meeting entities should return list domain meeting`() {
             val listMeetingEntities = listOf(
-                    JpaMeeting(id = 35, name = "meeting 35", uuid = UUID.randomUUID(), createdDateTime = LocalDateTime.now(), creatorId = 325, isClosed = true)
+                JpaMeeting(
+                    id = 35,
+                    name = "meeting 35",
+                    uuid = UUID.randomUUID(),
+                    createdDateTime = LocalDateTime.now(),
+                    creatorId = 325,
+                    isClosed = true
+                )
             )
             `when`(mockMeetingRepository.findAll()).thenReturn(listMeetingEntities)
 
@@ -96,11 +104,11 @@ internal class JpaMeetingDaoTest {
         @Test
         fun `when repository found meeting should return found meeting`() {
             val entityMeeting = JpaMeeting(
-                    meetingId,
-                    name = "meeting name",
-                    createdDateTime = LocalDateTime.now(),
-                    creatorId = 3658L,
-                    isClosed = false
+                meetingId,
+                name = "meeting name",
+                createdDateTime = LocalDateTime.now(),
+                creatorId = 3658L,
+                isClosed = false
             )
             `when`(mockMeetingRepository.findById(meetingId)).thenReturn(Optional.of(entityMeeting))
 

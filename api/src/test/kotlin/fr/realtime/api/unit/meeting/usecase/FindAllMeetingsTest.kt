@@ -1,8 +1,11 @@
 package fr.realtime.api.unit.meeting.usecase
 
+import fr.realtime.api.meeting.core.DtoMeeting
 import fr.realtime.api.meeting.core.Meeting
 import fr.realtime.api.meeting.core.MeetingDao
 import fr.realtime.api.meeting.usecase.FindAllMeetings
+import fr.realtime.api.user.core.DtoUser
+import fr.realtime.api.user.core.User
 import fr.realtime.api.user.core.UserDao
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -37,14 +40,48 @@ internal class FindAllMeetingsTest {
 
     @Test
     fun `when found all meetings by dao should return found meetings`() {
+        val localDateTime = LocalDateTime.now()
         val listMeetings = listOf(
-                Meeting(id = 63, name = "meeting 63", createdDateTime = LocalDateTime.now(), creatorId = 25, isClosed = true),
-                Meeting(id = 3, name = "meeting 3", createdDateTime = LocalDateTime.now(), creatorId = 35, isClosed = false)
+            Meeting(
+                id = 63,
+                name = "meeting 63",
+                description = "description meeting 63",
+                createdDateTime = localDateTime,
+                creatorId = 35,
+                isClosed = true
+            ),
+            Meeting(
+                id = 3,
+                name = "meeting 3",
+                description = "description meeting 3",
+                createdDateTime = localDateTime,
+                creatorId = 35,
+                isClosed = false
+            )
         )
         `when`(mockMeetingDao.findAll()).thenReturn(listMeetings)
+        `when`(mockUserDao.findById(35)).thenReturn(User(35, "user", "password", "user@user.com", setOf()))
 
         val result = findAllMeetings.execute()
 
-        assertThat(result).isEqualTo(listMeetings)
+        val expectedList = listOf(
+            DtoMeeting(
+                id = 63,
+                name = "meeting 63",
+                description = "description meeting 63",
+                createdDateTime = localDateTime,
+                creator = DtoUser(35, "user", "user@user.com"),
+                isClosed = true
+            ),
+            DtoMeeting(
+                id = 3,
+                name = "meeting 3",
+                description = "description meeting 3",
+                createdDateTime = localDateTime,
+                creator = DtoUser(35, "user", "user@user.com"),
+                isClosed = false
+            )
+        )
+        assertThat(result).isEqualTo(expectedList)
     }
 }

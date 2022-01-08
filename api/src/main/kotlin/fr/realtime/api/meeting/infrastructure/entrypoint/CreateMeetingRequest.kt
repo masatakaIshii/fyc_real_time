@@ -5,4 +5,6 @@ import javax.validation.constraints.NotBlank
 data class CreateMeetingRequest (
     @field:NotBlank(message = "Meeting name cannot be empty")
     val name: String = "",
+
+    val description: String = ""
 )

@@ -12,6 +12,9 @@ data class JpaMeeting(
 
         var name: String,
 
+        @get:Column(columnDefinition = "TEXT")
+        var description: String = "",
+
         var uuid: UUID? = null,
 
         @get:Column(name = "created_date_time")

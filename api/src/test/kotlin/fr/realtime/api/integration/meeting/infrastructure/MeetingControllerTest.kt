@@ -103,7 +103,7 @@ internal class MeetingControllerTest {
                     .requestAttr("userId", 654L)
             )
 
-            verify(mockSaveMeeting, times(1)).execute(request.name, 654L)
+            verify(mockSaveMeeting, times(1)).execute(request.name, "", 654L)
         }
 
         @WithMockUser(
@@ -112,7 +112,7 @@ internal class MeetingControllerTest {
         @Test
         fun `when new meeting saved should send new URI`() {
             val request = CreateMeetingRequest(name = "meeting name")
-            `when`(mockSaveMeeting.execute(request.name, 654L)).thenReturn(8L)
+            `when`(mockSaveMeeting.execute(request.name, "",654L)).thenReturn(8L)
 
 
             val location = mockMvc.perform(
@@ -156,21 +156,24 @@ internal class MeetingControllerTest {
         @WithMockUser
         @Test
         fun `when use case return list meetings should return response all meetings`() {
-            val listMeetings = listOf(
+            val localDateTime = LocalDateTime.now()
+            val listDtoMeetings = listOf(
                 DtoMeeting(
                     id = 1,
                     name = "first meeting",
-                    createdDateTime = LocalDateTime.now(),
+                    description = "description first meeting",
+                    createdDateTime = localDateTime,
                     isClosed = false
                 ),
                 DtoMeeting(
                     id = 2,
                     name = "second meeting",
-                    createdDateTime = LocalDateTime.now(),
+                    description = "description second meeting",
+                    createdDateTime = localDateTime,
                     isClosed = true
                 )
             )
-            `when`(mockFindAllMeetings.execute()).thenReturn(listMeetings)
+            `when`(mockFindAllMeetings.execute()).thenReturn(listDtoMeetings)
 
             val contentAsString = mockMvc.perform(
                 get("/api/meeting")
@@ -179,9 +182,9 @@ internal class MeetingControllerTest {
                 .response
                 .contentAsString
 
-            val itemType = object : TypeToken<List<Meeting>>() {}.type
-            val result: List<Meeting> = gson.fromJson(contentAsString, itemType)
-            assertThat(result).isEqualTo(listMeetings)
+            val itemType = object : TypeToken<List<DtoMeeting>>() {}.type
+            val result: List<DtoMeeting> = gson.fromJson(contentAsString, itemType)
+            assertThat(result).isEqualTo(listDtoMeetings)
         }
     }
 

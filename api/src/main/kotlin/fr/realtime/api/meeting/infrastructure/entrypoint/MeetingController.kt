@@ -38,7 +38,7 @@ class MeetingController(
         @Min(value = 1, message = "id has to be equal or more than 1") userId: Long,
     ): ResponseEntity<URI> {
         logger.info("Create meeting with name `${request.name}`")
-        val newMeetingId = saveMeeting.execute(request.name, userId)
+        val newMeetingId = saveMeeting.execute(request.name, request.description ,userId)
 
         val uri = ServletUriComponentsBuilder.fromCurrentRequestUri()
                 .path("/{id}")

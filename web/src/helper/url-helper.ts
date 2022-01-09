@@ -8,7 +8,7 @@ export function getToken(): string | null {
 export async function post<T>(path: string, bodyParam: T): Promise<Response> {
     const body = JSON.stringify(bodyParam)
     const token = getToken()
-    const requestInfo = {
+    const requestInfo: RequestInit = {
         method: "POST",
         headers: {
             Accept: "*/*",
@@ -17,7 +17,7 @@ export async function post<T>(path: string, bodyParam: T): Promise<Response> {
         },
         mode: "cors",
         body,
-    } as RequestInit;
+    };
     const request = new Request(
         URL + path,
         requestInfo
@@ -27,14 +27,14 @@ export async function post<T>(path: string, bodyParam: T): Promise<Response> {
 
 export async function get(path: string): Promise<Response> {
     const token = getToken();
-    const requestInfo = {
+    const requestInfo: RequestInit = {
         method: "GET",
         headers: {
             Accept: "*/*",
             Authorization: "Bearer " + (token || "")
         },
         mode: "cors"
-    } as RequestInit;
+    };
     const request = new Request(
         URL + path,
         requestInfo

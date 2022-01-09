@@ -1,25 +1,14 @@
 <script lang="ts">
     import { push } from "svelte-spa-router";
     import { signIn } from "../../api/auth/auth-service";
+    import { error } from "../../stores/use-error";
 
     let email = "";
     let password = "";
-    let error = "";
-    let errorShowed = false;
     $: {
         email;
         password;
-        resetErrorIfShowed();
-    }
-
-    function resetErrorIfShowed() {
-        if (error.length > 0) {
-            if (!errorShowed) {
-                error = "";
-            } else {
-                errorShowed = false;
-            }
-        }
+        error.reset();
     }
 
     async function submit() {
@@ -27,7 +16,7 @@
             await signIn(email, password);
             push("/meeting");
         } catch (err) {
-            error = err.message;
+            error.set(err);
         }
     }
 </script>
@@ -46,7 +35,7 @@
     <div class="form-btn">
         <button type="submit" class="valid-btn">Submit</button>
     </div>
-    <div style="color: red;">{error}</div>
+    <div style="color: red;">{$error}</div>
 </form>
 
 <style lang="scss">

@@ -2,11 +2,12 @@
 	import Router from "svelte-spa-router";
 	import { routes } from "../src/routes";
 	import NavBar from "./components/NavBar/NavBar.svelte";
+
 </script>
 
 <main>
 	<NavBar />
-	<Router {routes} />
+	<Router {routes}/>
 </main>
 
 <style lang="scss">

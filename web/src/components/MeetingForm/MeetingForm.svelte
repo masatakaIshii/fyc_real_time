@@ -1,16 +1,24 @@
 <script lang="ts">
-import { push } from "svelte-spa-router";
-
-import { createMeeting } from "../../api/meeting/meeting-service";
-
+    import { push } from "svelte-spa-router";
+    import { createMeeting } from "../../api/meeting/meeting-service";
+    import { error } from "../../stores/use-error";
 
     let name: string = "";
     let description: string = "";
-    let error: string;
+
+    $: {
+        name;
+        description;
+        error.reset();
+    }
 
     async function submit() {
-        await createMeeting(name, description);
-        push("/");
+        try {
+            await createMeeting(name, description);
+            push("/");
+        } catch (e) {
+            error.set(e);
+        }
     }
 </script>
 
@@ -28,9 +36,7 @@ import { createMeeting } from "../../api/meeting/meeting-service";
     <div class="form-btn">
         <button type="submit" class="valid-btn">Submit</button>
     </div>
-    {#if error}
-        <div style="color: red;">{error}</div>
-    {/if}
+    <div style="color: red;">{$error}</div>
 </form>
 
 <style lang="scss">

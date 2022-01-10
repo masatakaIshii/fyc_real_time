@@ -18,13 +18,13 @@ export async function createMeeting(name: string, description :string): Promise<
         }
         const response = await post("api/meeting", body)
         if (response.status !== 201) {
-            throw `Problem to create new meeting : ${response.text()}`;
+            throw `Problem to create new meeting : ${await response.text()}`;
         }
         const newMeetingLocation = response.headers.get("Location");
         const lastSlash = newMeetingLocation.lastIndexOf("/");
         const newMeetingId = +newMeetingLocation.slice(lastSlash + 1);
         if (newMeetingId === NaN) {
-            throw `Problem new meeting id : ${response.text()}`;
+            throw `Problem new meeting id : ${await response.text()}`;
         }
         return newMeetingId;
     } catch(err) {

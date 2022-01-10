@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { push } from "svelte-spa-router";
+    import { push, link } from "svelte-spa-router";
+    import active from 'svelte-spa-router/active';
     import { signIn } from "../../api/auth/auth-service";
     import { error } from "../../stores/use-error";
 
@@ -23,7 +24,7 @@
 
 <h1>Sign In</h1>
 
-<form on:submit|preventDefault={submit} class="sign-in-form">
+<form on:submit|preventDefault={submit} class="form-style">
     <div class="form-group">
         <label for="email">Email :</label>
         <input id="email" type="email" bind:value={email} required />
@@ -38,11 +39,8 @@
     <div style="color: red;">{$error}</div>
 </form>
 
-<style lang="scss">
-    .sign-in-form {
-        display: flex;
-        justify-content: center;
-        flex-direction: column;
-        padding: 0 38%;
-    }
-</style>
+<p>
+    If you want to subscribe click
+    <a href="/sign-up" use:link use:active> here</a>
+</p>
+

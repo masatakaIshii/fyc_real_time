@@ -3,11 +3,24 @@ import { push } from "svelte-spa-router";
 import { isLoggedIn } from "../../stores/use-is-logged-in";
 
 interface SignInRequest {
-    email: string,
-    password: string
+    email: string;
+    password: string;
 }
+
+interface SubscribeRequest {
+    name: string;
+    email: string;
+    password: string;
+}
+
 const JWT_TOKEN: string = "jwt-token";
 const USERNAME: string = "username";
+const ROLES: string = "roles";
+const ROLE_ADMIN = "ROLE_ADMIN";
+
+export function isAdmin() {
+    return sessionStorage.getItem(ROLES).includes(ROLE_ADMIN);
+}
 
 export async function signIn(email: string, password: string) {
     const request: SignInRequest = {
@@ -29,6 +42,11 @@ export async function signIn(email: string, password: string) {
             isLoggedIn.set(true);
             sessionStorage.setItem(JWT_TOKEN, jwtToken);
             sessionStorage.setItem(USERNAME, email);
+
+            const roles = responsePost.headers.get("Roles");
+            if (roles !== null && roles.length > 0) {
+                sessionStorage.setItem(ROLES, roles);
+            }
         }
 
     } catch (err) {
@@ -36,9 +54,32 @@ export async function signIn(email: string, password: string) {
     }
 }
 
+export async function subscribe(name: string, email: string, password: string) {
+    const request: SubscribeRequest = {
+        name,
+        email,
+        password
+    }
+    try {
+        const response = await post("api/auth/register", request);
+        if (response.ok !== true) {
+            const errorText = await response.text();
+            if (response.status === 403 && errorText.includes("USER_EMAIL_ALREADY_EXIST")) {
+                throw `User with email '${email}' already exists`;
+            } else {
+                throw errorText;
+            }
+        }
+
+    } catch(err) {
+        throw Error(err);
+    }
+}
+
 export function logout() {
     sessionStorage.removeItem(JWT_TOKEN);
     sessionStorage.removeItem(USERNAME);
+    sessionStorage.removeItem(ROLES);
     isLoggedIn.reset();
-    push("/");
+    push("/home");
 }

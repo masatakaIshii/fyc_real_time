@@ -31,6 +31,13 @@
 		color: #fff;
 	}
 
+	:global(.form-style) {
+		display: flex;
+        justify-content: center;
+        flex-direction: column;
+        padding: 0 38%;
+	}
+
 	:global(.form-group) {
 		display: flex;
 		flex-wrap: wrap;

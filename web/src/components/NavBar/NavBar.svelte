@@ -2,10 +2,20 @@
     import { push } from "svelte-spa-router";
     import { isLoggedIn } from "../../stores/use-is-logged-in";
     import { logout } from "../../api/auth/auth-service";
+
+    let path = "/home";
+    $: {
+        if ($isLoggedIn) {
+            path = "/"
+        } else {
+            path = "/home"
+        }
+    }
+
 </script>
 
 <nav>
-    <div><button on:click={() => push("/")}>Music challenge</button></div>
+    <div><button on:click={() => push(path)}>Music challenge</button></div>
     {#if $isLoggedIn}
         <button class="logout-btn" on:click={logout}>Logout</button>
     {/if}

@@ -1,4 +1,4 @@
-import { post } from "../../helper/url-helper";
+import { postRequest } from "../../helper/url-helper";
 import { push } from "svelte-spa-router";
 import { isLoggedIn } from "../../stores/use-is-logged-in";
 
@@ -33,7 +33,7 @@ export async function signIn(email: string, password: string) {
     };
 
     try {
-        const responsePost = await post("api/login", request);
+        const responsePost = await postRequest("api/login", request);
         if (responsePost.status === 401) {
             throw "Email and/or password are wrong, check first if you sign up";
         }
@@ -65,7 +65,7 @@ export async function subscribe(name: string, email: string, password: string) {
         password
     }
     try {
-        const response = await post("api/auth/register", request);
+        const response = await postRequest("api/auth/register", request);
         if (response.ok !== true) {
             const errorText = await response.text();
             if (response.status === 403 && errorText.includes("USER_EMAIL_ALREADY_EXIST")) {

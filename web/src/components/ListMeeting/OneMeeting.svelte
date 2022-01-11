@@ -1,5 +1,7 @@
 <script type="ts">
     import { getAuthUsername } from "../../api/auth/auth-service";
+    import { deleteMeeting } from "../../api/meeting/meeting-service";
+    import { listMeeting } from "../../stores/use-list-meeting";
 
     import type { DtoMeeting } from "../../types/meeting";
 
@@ -8,20 +10,21 @@
     let authUsername = getAuthUsername();
     let isCreator = meeting.creator.email === authUsername;
 
-    function updateMeeting() {
+    function updateOne() {
         console.log("update meeting");
     }
 
-    function deleteMeeting() {
-        console.log("delete meeting");
+    async function deleteOne() {
+        try {
+            await deleteMeeting(meeting.id);
+            listMeeting.removeOne(meeting);
+        } catch (err) {
+            console.error(err);
+        }
     }
 </script>
 
-<div
-    class={isCreator
-        ? "one-meeting creator"
-        : "one-meeting"}
->
+<div class={isCreator ? "one-meeting creator" : "one-meeting"}>
     <div class="one-meeting__group">
         <div class="one-meeting__label">Meeting name:</div>
         <div>{meeting.name}</div>
@@ -39,10 +42,10 @@
         <div>{meeting.isClosed ? "Closed" : "Open"}</div>
     </div>
     {#if isCreator}
-    <div class="one-meeting__group-btns">
-        <button class="update-btn" on:click={updateMeeting}>Update</button>
-        <button class="delete-btn" on:click={deleteMeeting}>Delete</button>
-    </div>
+        <div class="one-meeting__group-btns">
+            <button class="update-btn" on:click={updateOne}>Update</button>
+            <button class="delete-btn" on:click={deleteOne}>Delete</button>
+        </div>
     {/if}
 </div>
 

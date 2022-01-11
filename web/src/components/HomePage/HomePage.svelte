@@ -16,6 +16,7 @@
     </p>
 
     <button class="valid-btn" on:click={() => push("/sign-in")}>Sign in</button>
+    <button class="valid-btn subscribe-btn" on:click={() => push("/sign-up")}>Subscribe</button>
 </div>
 
 <style>
@@ -24,5 +25,12 @@
         text-transform: uppercase;
         font-size: 4em;
         font-weight: 100;
+    }
+    .subscribe-btn {
+        color: gray;
+    }
+    .subscribe-btn:hover {
+        color: white;
+        background-color: grey;
     }
 </style>

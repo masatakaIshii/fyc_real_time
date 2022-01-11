@@ -15,7 +15,7 @@ class CorsConfiguration {
             override fun addCorsMappings(registry: CorsRegistry) {
                 registry.addMapping("/**")
                     .allowedOrigins("*")
-                    .exposedHeaders("Authorization", "Location")
+                    .exposedHeaders("Authorization", "Location", "Roles")
             }
         }
     }

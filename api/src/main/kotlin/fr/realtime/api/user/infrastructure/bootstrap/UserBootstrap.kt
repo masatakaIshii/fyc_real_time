@@ -18,10 +18,6 @@ class UserBootstrap(
 
     @EventListener
     fun on(event: ApplicationReadyEvent) {
-        val password = "root"
-
-        logger.info("Create initial user 'root' with password {}", password)
-        val passwordEncoded = passwordUtils.encode(password)
 
         val userRole = if (!roleDao.existsByName(RoleName.ROLE_USER)) {
             roleDao.save(Role(0, RoleName.ROLE_USER))
@@ -31,14 +27,17 @@ class UserBootstrap(
             roleDao.save(Role(0, RoleName.ROLE_ADMIN))
         } else roleDao.findByName(RoleName.ROLE_ADMIN) ?: throw Exception("Problem User bootstrap")
 
-        val initialUser = User(
-            0, name = "root",
-            password = passwordEncoded,
-            "root@root.com",
-            roles = setOf(userRole, adminRole)
-        )
+        createUser("root", "root@root.com", "root", setOf(userRole, adminRole))
+        createUser("admin", "admin@admin.com", "admin", setOf(userRole, adminRole))
+    }
 
-        val savedUser = userDao.save(initialUser)
+    fun createUser(name: String, email: String, password: String, roles: Set<Role>) {
+        logger.info("Create initial user 'root' with password {}", password)
+        val passwordEncoded = passwordUtils.encode(password)
+
+        val userToSave = User(0, name, passwordEncoded, email, roles)
+
+        val savedUser = userDao.save(userToSave)
 
         logger.info("User '${savedUser.name}' created")
     }

@@ -6,6 +6,7 @@
     import OneMeeting from "./OneMeeting.svelte";
     import type { DtoMeeting } from "../../types/meeting";
     import { getAllMeetings } from "../../api/meeting/meeting-service";
+    import { isAdmin } from "../../api/auth/auth-service";
 
     let listMeetings: DtoMeeting[] = [];
 
@@ -19,9 +20,11 @@
     <h1 class="title">
         <div />
         <div>List Meeting</div>
-        <div class="icon" on:click={() => push("/meeting-form")}>
-            <FontAwesomeIcon icon={faPlusSquare} />
-        </div>
+        {#if isAdmin()}
+            <div class="icon" on:click={() => push("/meeting-form")}>
+                <FontAwesomeIcon icon={faPlusSquare} />
+            </div>
+        {/if}
     </h1>
     <div class="content">
         {#each listMeetings as meeting}

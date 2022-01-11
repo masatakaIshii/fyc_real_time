@@ -1,4 +1,4 @@
-import { derived, writable, get } from "svelte/store";
+import { writable, get } from "svelte/store";
 import { getToken } from "../helper/url-helper";
 
 function userIsLoggedIn() {

@@ -19,7 +19,11 @@ const ROLES: string = "roles";
 const ROLE_ADMIN = "ROLE_ADMIN";
 
 export function isAdmin() {
-    return sessionStorage.getItem(ROLES).includes(ROLE_ADMIN);
+    return localStorage.getItem(ROLES).includes(ROLE_ADMIN);
+}
+
+export function getAuthUsername() {
+    return localStorage.getItem(USERNAME);
 }
 
 export async function signIn(email: string, password: string) {
@@ -40,12 +44,12 @@ export async function signIn(email: string, password: string) {
             }
             const jwtToken = authorization.slice("Bearer ".length, authorization.length);
             isLoggedIn.set(true);
-            sessionStorage.setItem(JWT_TOKEN, jwtToken);
-            sessionStorage.setItem(USERNAME, email);
+            localStorage.setItem(JWT_TOKEN, jwtToken);
+            localStorage.setItem(USERNAME, email);
 
             const roles = responsePost.headers.get("Roles");
             if (roles !== null && roles.length > 0) {
-                sessionStorage.setItem(ROLES, roles);
+                localStorage.setItem(ROLES, roles);
             }
         }
 
@@ -77,9 +81,9 @@ export async function subscribe(name: string, email: string, password: string) {
 }
 
 export function logout() {
-    sessionStorage.removeItem(JWT_TOKEN);
-    sessionStorage.removeItem(USERNAME);
-    sessionStorage.removeItem(ROLES);
+    localStorage.removeItem(JWT_TOKEN);
+    localStorage.removeItem(USERNAME);
+    localStorage.removeItem(ROLES);
     isLoggedIn.reset();
     push("/home");
 }

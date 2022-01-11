@@ -2,7 +2,7 @@ const URL = "http://localhost:8080/";
 
 
 export function getToken(): string | null {
-    return sessionStorage.getItem("jwt-token");
+    return localStorage.getItem("jwt-token");
 }
 
 export async function post<T>(path: string, bodyParam: T): Promise<Response> {

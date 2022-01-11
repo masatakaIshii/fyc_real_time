@@ -4,21 +4,20 @@
     import { faPlusSquare } from "@fortawesome/free-solid-svg-icons";
     import { FontAwesomeIcon } from 'fontawesome-svelte';
     import OneMeeting from "./OneMeeting.svelte";
-    import type { DtoMeeting } from "../../types/meeting";
     import { getAllMeetings } from "../../api/meeting/meeting-service";
     import { isAdmin } from "../../api/auth/auth-service";
+    import {listMeeting} from "../../stores/use-list-meeting"
 
-    let listMeetings: DtoMeeting[] = [];
 
     onMount(async () => {
-        listMeetings = await getAllMeetings();
+        const value = await getAllMeetings();
+        listMeeting.set(value)
     });
 
 </script>
 
 <div>
     <h1 class="title">
-        <div />
         <div>List Meeting</div>
         {#if isAdmin()}
             <div class="icon" on:click={() => push("/meeting-form")}>
@@ -27,7 +26,7 @@
         {/if}
     </h1>
     <div class="content">
-        {#each listMeetings as meeting}
+        {#each $listMeeting as meeting}
             <OneMeeting {meeting} />
         {/each}
     </div>

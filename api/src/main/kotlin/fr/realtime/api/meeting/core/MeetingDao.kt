@@ -5,4 +5,5 @@ interface MeetingDao {
     fun findAll(): List<Meeting>
     fun findById(meetingId: Long): Meeting?
     fun existsById(meetingId: Long) : Boolean
+    fun deleteById(meetingId: Long)
 }

@@ -3,13 +3,11 @@ package fr.realtime.api.integration.meeting.infrastructure
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import fr.realtime.api.meeting.core.DtoMeeting
-import fr.realtime.api.meeting.core.Meeting
 import fr.realtime.api.meeting.infrastructure.entrypoint.CreateMeetingRequest
 import fr.realtime.api.meeting.infrastructure.entrypoint.UpdateMeetingRequest
-import fr.realtime.api.meeting.usecase.FindAllMeetings
-import fr.realtime.api.meeting.usecase.FindMeetingThemes
-import fr.realtime.api.meeting.usecase.SaveMeeting
-import fr.realtime.api.meeting.usecase.UpdateMeeting
+import fr.realtime.api.meeting.usecase.*
+import fr.realtime.api.shared.core.exceptions.ForbiddenException
+import fr.realtime.api.shared.core.exceptions.NotFoundException
 import fr.realtime.api.theme.core.Theme
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -51,6 +49,9 @@ internal class MeetingControllerTest {
 
     @MockBean
     lateinit var mockUpdateMeeting: UpdateMeeting
+
+    @MockBean
+    lateinit var mockDeleteMeetingById: DeleteMeetingById
 
     @Nested
     inner class PostMeetingTest {
@@ -112,7 +113,7 @@ internal class MeetingControllerTest {
         @Test
         fun `when new meeting saved should send new URI`() {
             val request = CreateMeetingRequest(name = "meeting name")
-            `when`(mockSaveMeeting.execute(request.name, "",654L)).thenReturn(8L)
+            `when`(mockSaveMeeting.execute(request.name, "", 654L)).thenReturn(8L)
 
 
             val location = mockMvc.perform(
@@ -340,6 +341,85 @@ internal class MeetingControllerTest {
                 put("/api/meeting/$meetingId").contentType(MediaType.APPLICATION_JSON)
                     .content(gson.toJson(request))
             ).andExpect(status().isNoContent)
+        }
+    }
+
+    @Nested
+    inner class DeleteMeetingTest {
+        private val meetingId = 354L
+
+        private val userId = 654L
+
+        @Test
+        fun `when user is not authenticated should send unauthorized response`() {
+            mockMvc.perform(
+                delete("/api/meeting/$meetingId")
+                    .requestAttr("userId", userId)
+            )
+                .andExpect(status().isUnauthorized)
+
+        }
+
+        @WithMockUser
+        @Test
+        fun `when user is not admin should send forbidden response`() {
+            mockMvc.perform(
+                delete("/api/meeting/$meetingId")
+                    .requestAttr("userId", userId)
+            )
+                .andExpect(status().isForbidden)
+
+        }
+
+        @WithMockUser(
+            roles = ["USER", "ADMIN"],
+        )
+        @Test
+        fun `when user is admin should call usecase to delete meeting by id`() {
+            mockMvc.perform(
+                delete("/api/meeting/$meetingId")
+                    .requestAttr("userId", userId)
+            )
+
+            verify(mockDeleteMeetingById, times(1)).execute(meetingId, userId)
+        }
+
+        @WithMockUser(
+            roles = ["USER", "ADMIN"],
+        )
+        @Test
+        fun `when delete meeting id usecase throw NotFoundException should send error response 404`() {
+            `when`(mockDeleteMeetingById.execute(meetingId, userId)).thenThrow(NotFoundException("not found"))
+
+            mockMvc.perform(
+                delete("/api/meeting/$meetingId")
+                    .requestAttr("userId", userId)
+            ).andExpect(status().isNotFound)
+        }
+
+        @WithMockUser(
+            roles = ["USER", "ADMIN"],
+        )
+        @Test
+        fun `when delete meeting id usecase throw NotFoundException should send error response 403`() {
+            `when`(mockDeleteMeetingById.execute(meetingId, userId)).thenThrow(ForbiddenException("forbidden"))
+
+            mockMvc.perform(
+                delete("/api/meeting/$meetingId")
+                    .requestAttr("userId", userId)
+            ).andExpect(status().isForbidden)
+        }
+
+        @WithMockUser(
+            roles = ["USER", "ADMIN"],
+        )
+        @Test
+        fun `when delete meeting id usecase success should send no content response`() {
+            mockMvc.perform(
+                delete("/api/meeting/$meetingId")
+                    .requestAttr("userId", userId)
+            ).andExpect(status().isNoContent)
+            verify(mockDeleteMeetingById, times(1)).execute(meetingId, userId)
         }
     }
 }

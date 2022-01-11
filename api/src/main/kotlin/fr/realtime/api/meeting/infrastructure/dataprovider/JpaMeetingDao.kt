@@ -26,4 +26,7 @@ class JpaMeetingDao(
             .orElse(null)
 
     override fun existsById(meetingId: Long): Boolean = meetingRepository.existsById(meetingId)
+    override fun deleteById(meetingId: Long) {
+        meetingRepository.deleteById(meetingId)
+    }
 }
